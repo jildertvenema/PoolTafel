@@ -42,18 +42,33 @@
 			scene.add(cGroup);
 			
 			var lGeometry = new THREE.BoxGeometry(1,1,6);
+			var lGeometry2 = new THREE.BoxGeometry(25,1,1);
+			
 			//var lMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 			var lMaterial = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
 			var longCube = new THREE.Mesh(lGeometry,lMaterial);
 			
+			var LongerCube1 = new THREE.Mesh(lGeometry2,lMaterial);
+			
+			
+			
+			
 			longCube.position.z = -15;
 			longCube.position.x = -15;
 			
+			LongerCube1.position.x = 0;
+			LongerCube1.position.z = -12;
+			
+			
 			//scene.add(longCube);
 			cGroup.add(longCube);
-			
+			var LongerCube2 = LongerCube1.clone();
 			var clonedLongCube = longCube.clone();
 			clonedLongCube.position.x = 15;
+			LongerCube2.position.z = -20;
+			
+			cGroup.add(LongerCube2);
+			cGroup.add(LongerCube1);
 			
 			//scene.add(clonedLongCube);
 			cGroup.add(clonedLongCube);
@@ -107,6 +122,10 @@
 
 			
 			function render() {
+
+                camera.lookAt(cube.position);
+
+
 				requestAnimationFrame(render);
 				
 				cube.rotation.setFromVector3(cube.rotation.toVector3().add(rotationVector));
@@ -150,8 +169,8 @@
 			document.addEventListener('mousemove', onDocumentMouseMove, false);
 			
 			function onDocumentMouseMove(event) {
-				
-				event.preventDefault();
+
+                event.preventDefault();
 				
 				mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
 				mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
