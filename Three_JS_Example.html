@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Tryout Project</title>
+		<title>ballen</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<style>
@@ -15,8 +15,11 @@
 	<body>
 
 		<script src="js/three.min.js"></script>
-		<script src="js/SpotLight.js"></script>
-		<script src="js/FirstPersonControls.js"></script>
+		<script src='js/threex.poolball.js'></script>
+		<script src='js/threex.poolball.js'></script>
+		
+		<!--<script src="js/SpotLight.js"></script>
+		<script src="js/FirstPersonControls.js"></script>-->
 
 		<script>
 			var scene = new THREE.Scene();
@@ -28,53 +31,11 @@
 			renderer.setClearColor(0x000000);
 			document.body.appendChild(renderer.domElement);
 			
-			var cGeometry = new THREE.BoxGeometry(1,1,1);
-			//var cMaterial = new THREE.MeshBasicMaterial( { color:0xff0040 } );
-			//var cMaterial = new THREE.MeshPhongMaterial( { color:0xff0040 } );
-			var cMaterial = new THREE.MeshPhongMaterial( { color:0xf0f0f0 } );
-			var cube = new THREE.Mesh(cGeometry,cMaterial);
-			
-			cube.position.z = -15;
-			
-			scene.add(cube);
-			
-			var cGroup = new THREE.Group();
-			scene.add(cGroup);
-			
-			var lGeometry = new THREE.BoxGeometry(1,1,6);
-			var lGeometry2 = new THREE.BoxGeometry(25,1,1);
-			
-			//var lMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-			var lMaterial = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
-			var longCube = new THREE.Mesh(lGeometry,lMaterial);
-			
-			var LongerCube1 = new THREE.Mesh(lGeometry2,lMaterial);
-			
-			
-			
-			
-			longCube.position.z = -15;
-			longCube.position.x = -15;
-			
-			LongerCube1.position.x = 0;
-			LongerCube1.position.z = -12;
-			
-			
-			//scene.add(longCube);
-			cGroup.add(longCube);
-			var LongerCube2 = LongerCube1.clone();
-			var clonedLongCube = longCube.clone();
-			clonedLongCube.position.x = 15;
-			LongerCube2.position.z = -20;
-			
-			cGroup.add(LongerCube2);
-			cGroup.add(LongerCube1);
-			
-			//scene.add(clonedLongCube);
-			cGroup.add(clonedLongCube);
+
+
 			
 			//var groundMaterial = new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } );
-			var groundMaterial = new THREE.MeshPhongMaterial( { color: 0xf0f0f0 } );
+			var groundMaterial = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
 			
 			var ground = new THREE.Mesh( new THREE.PlaneBufferGeometry(100,100,2,2), groundMaterial);
 			ground.position.y = -2;
@@ -93,6 +54,9 @@
 			
 			//var blueMaterial = new THREE.MeshBasicMaterial( { color: 0x0040ff } );
 			var blueMaterial = new THREE.MeshPhongMaterial( { color: 0x0040ff } );
+			
+			
+			
 			//var greenMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 			var greenMaterial = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
 
@@ -121,48 +85,62 @@
 			scene.add(light3);
 
 			
+			
+			
+			var ballen = new THREE.Group();
+
+			
+			for (let i = 1; i < 10; i++){
+			var Poolball	= THREEx.createPoolBall({
+				ballDesc	: i, // the text which gonna be written on the ball
+				stripped	: true,	// true if the ball must be stripped, false otherwise
+				textureW	: 512	// the width/height of the created texture for this ball
+			});
+			
+			ballen.add(Poolball);
+			
+			}
+		
+			
+			scene.add(ballen);
+						
+			ballen.position.z = -15;
+			ballen.position.x = -5;
+			
+			
+			for (let i = 0; i < 9; i++){
+			ballen.children[i].position.x += i;
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			function render() {
 
-                camera.lookAt(cube.position);
+			
+			renderer.setSize(window.innerWidth, window.innerHeight);
+
+			
+                camera.lookAt(ballen.position);
 
 
 				requestAnimationFrame(render);
-				
-				cube.rotation.setFromVector3(cube.rotation.toVector3().add(rotationVector));
-				
-				cube.position.add(speed.copy(cubeDirection).multiplyScalar(clock.getDelta()*20));
-				
-				raycaster.set(cube.position, cubeDirection);
-				
-				var intersections = raycaster.intersectObjects(cGroup.children);
-				
-				if(intersections.length > 0) {
-					var intersection = intersections[0];
-					
-					if(intersection.distance < 2) {
-						cubeDirection.reflect(intersection.face.normal);
-					}
-				}
-				
-				
-				for (var name in cGroup.children) {
-					var currentElement = cGroup.children[name];
-					currentElement.material = blueMaterial;
-				}
+
+		
+
 
 				raycaster.setFromCamera(mouse, camera);
 				
-				var mouseIntersections = raycaster.intersectObjects(cGroup.children);
-				
-				if (mouseIntersections.length > 0) {
-					var intersection = mouseIntersections[0];
-					
-					intersection.object.material = greenMaterial;
-				}
 
-				
 				renderer.render(scene,camera);
 			}
+			
+			
 			
 			var mouse = new THREE.Vector2();
 			
@@ -177,7 +155,6 @@
 			}
 			
 			camera.position.y = 10;
-			camera.lookAt(cube.position);
 			
 			render();
 		</script>
