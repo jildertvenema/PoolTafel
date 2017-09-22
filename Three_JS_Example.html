@@ -15,8 +15,6 @@
 	<body>
 
 		<script src="js/three.min.js"></script>
-		<script src='js/threex.poolball.js'></script>
-		<script src='js/threex.poolball.js'></script>
 		
 		<!--<script src="js/SpotLight.js"></script>
 		<script src="js/FirstPersonControls.js"></script>-->
@@ -44,9 +42,9 @@
 			
 			var raycaster = new THREE.Raycaster();
 			
-			var cubeDirection = new THREE.Vector3();
-			cubeDirection.x = -1;
-			cubeDirection.normalize();
+			var balDirection = new THREE.Vector3();
+			balDirection.z = -1;
+			balDirection.normalize();
 			
 			var speed = new THREE.Vector3();
 			
@@ -85,59 +83,76 @@
 			scene.add(light3);
 
 			
-			
-			
 			var ballen = new THREE.Group();
-
+			var witteBal = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0xFFFFFF}));
 			
-			for (let i = 1; i < 10; i++){
-			var Poolball	= THREEx.createPoolBall({
-				ballDesc	: i, // the text which gonna be written on the ball
-				stripped	: true,	// true if the ball must be stripped, false otherwise
-				textureW	: 512	// the width/height of the created texture for this ball
-			});
+			for (var i = 1; i < 16; i++){
+			    if (i % 2 == 0) {
+                    var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0xff0040}));
+                }
+                else {
+                    if (i == 5) {
+                        var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0x00000}));
+                    }
+					else
+					{
+                    var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0x0040ff}));
+                	}
+				}
 			
-			ballen.add(Poolball);
-			
+				ballen.add(Poolball);
 			}
 		
 			
 			scene.add(ballen);
-						
+			scene.add(witteBal);
+			witteBal.position.x = 0;
+			witteBal.position.z = -8;
+
+
 			ballen.position.z = -15;
 			ballen.position.x = -5;
+
+
 			
-			
-			for (let i = 0; i < 9; i++){
+			for (var i = 0; i < ballen.children.length; i++){
 			ballen.children[i].position.x += i;
 			}
 			
 			
 			
-			
-			
-			
+
 			
 			
 			
 			function render() {
 
 			
-			renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.setSize(window.innerWidth, window.innerHeight);
 
-			
-                camera.lookAt(ballen.position);
+
+				camera.lookAt(light1.position);
 
 
 				requestAnimationFrame(render);
-
-		
-
-
 				raycaster.setFromCamera(mouse, camera);
-				
-
 				renderer.render(scene,camera);
+
+                witteBal.position.add(speed.copy(balDirection).multiplyScalar(clock.getDelta()*20));
+
+                raycaster.set(witteBal.position, balDirection);
+
+                var intersections = raycaster.intersectObjects(ballen.children);
+
+				if(intersections.length > 0) {
+                    var intersection = intersections[0];
+
+                    if(intersection.distance < 1) {
+                        intersection.object.position.add(speed.copy(new THREE.Vector3(0,0,-1)).multiplyScalar(clock.getDelta()*20));
+                        balDirection = new THREE.Vector3(-balDirection.x, -balDirection.y, -balDirection.z);
+                    }
+                }
+
 			}
 			
 			
