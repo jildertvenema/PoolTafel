@@ -96,7 +96,19 @@
 			randen.add(rand1);
 			randen.add(rand2);
 			randen.add(rand3);
-			scene.add(randen);
+			//scene.add(randen);
+			
+			
+			var zranden = new THREE.Group(); 
+			zranden.add(rand2);
+			zranden.add(rand3);
+			
+			var xranden = new THREE.Group(); 
+			xranden.add(rand0);
+			xranden.add(rand1);
+			
+			scene.add(zranden);
+			scene.add(xranden);
 			
 			rand0.position.set(-10,0,0);
 			rand1.position.set(10,0,0);
@@ -170,20 +182,32 @@
 
                     if(intersection.distance < 1) {
                         intersection.object.position.add(speed.copy(new THREE.Vector3(0,0,-1)).multiplyScalar(clock.getDelta()*20));
-                        balDirection = new THREE.Vector3(-balDirection.x, -balDirection.y, -balDirection.z);
+                        //balDirection = new THREE.Vector3(-balDirection.x, -balDirection.y, -balDirection.z);
                     }
                 }
 				
-				var intersections = raycaster.intersectObjects(randen.children);
+				var intersections = raycaster.intersectObjects(zranden.children);
 
 				if(intersections.length > 0) {
                     var intersection = intersections[0];
 
                     if(intersection.distance < 1) {
                         //intersection.object.position.add(speed.copy(new THREE.Vector3(0,0,-1)).multiplyScalar(clock.getDelta()*20));
-                        cube.position.add(speed.copy(balDirection).multiplyScalar(clock.getDelta()*20));
+                        balDirection = new THREE.Vector3(balDirection.x, 0, -balDirection.z);
                     }
                 }
+				
+				var intersections = raycaster.intersectObjects(xranden.children);
+
+				if(intersections.length > 0) {
+                    var intersection = intersections[0];
+
+                    if(intersection.distance < 1) {
+                        //intersection.object.position.add(speed.copy(new THREE.Vector3(0,0,-1)).multiplyScalar(clock.getDelta()*20));
+                        balDirection = new THREE.Vector3(-balDirection.x, 0, balDirection.z);
+                    }
+                }
+
 
 			}
 			
