@@ -82,6 +82,21 @@
 			light3.position.set(15, 4, -15);
 			scene.add(light3);
 
+			var lGeometry = new THREE.BoxGeometry(1,1,6);
+			var lGeometry2 = new THREE.BoxGeometry(25,1,1);
+			
+			var randen = new THREE.Group();
+			var lMaterial = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
+			var rand0 = new THREE.Mesh(lGeometry,lMaterial);
+			var rand1 = new THREE.Mesh(lGeometry,lMaterial);
+			var rand2 = new THREE.Mesh(lGeometry2,lMaterial);
+			var rand3 = new THREE.Mesh(lGeometry2,lMaterial);
+			randen.add(rand0);
+			randen.add(rand1);
+			randen.add(rand2);
+			randen.add(rand3);
+			scene.add(randen);
+			
 			
 			var ballen = new THREE.Group();
 			var witteBal = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0xFFFFFF}));
@@ -131,7 +146,7 @@
 				renderer.setSize(window.innerWidth, window.innerHeight);
 
 
-				camera.lookAt(light1.position);
+				camera.lookAt(rand0.position);
 
 
 				requestAnimationFrame(render);
