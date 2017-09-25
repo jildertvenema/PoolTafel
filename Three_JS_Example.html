@@ -44,6 +44,7 @@
 			
 			var balDirection = new THREE.Vector3();
 			balDirection.z = -1;
+			balDirection.x = -.5;
 			balDirection.normalize();
 			
 			var speed = new THREE.Vector3();
@@ -82,7 +83,7 @@
 			light3.position.set(15, 4, -15);
 			scene.add(light3);
 
-			var lGeometry = new THREE.BoxGeometry(1,1,6);
+			var lGeometry = new THREE.BoxGeometry(1,1,40);
 			var lGeometry2 = new THREE.BoxGeometry(25,1,1);
 			
 			var randen = new THREE.Group();
@@ -96,6 +97,11 @@
 			randen.add(rand2);
 			randen.add(rand3);
 			scene.add(randen);
+			
+			rand0.position.set(-10,0,0);
+			rand1.position.set(10,0,0);
+			rand2.position.set(0,0,-20);
+			rand3.position.set(0,0,20);
 			
 			
 			var ballen = new THREE.Group();
@@ -146,7 +152,7 @@
 				renderer.setSize(window.innerWidth, window.innerHeight);
 
 
-				camera.lookAt(rand0.position);
+				camera.lookAt(witteBal.position);
 
 
 				requestAnimationFrame(render);
@@ -167,6 +173,17 @@
                         balDirection = new THREE.Vector3(-balDirection.x, -balDirection.y, -balDirection.z);
                     }
                 }
+				
+				var intersections = raycaster.intersectObjects(randen.children);
+
+				if(intersections.length > 0) {
+                    var intersection = intersections[0];
+
+                    if(intersection.distance < 1) {
+                        //intersection.object.position.add(speed.copy(new THREE.Vector3(0,0,-1)).multiplyScalar(clock.getDelta()*20));
+                        cube.position.add(speed.copy(balDirection).multiplyScalar(clock.getDelta()*20));
+                    }
+                }
 
 			}
 			
@@ -185,6 +202,7 @@
 			}
 			
 			camera.position.y = 10;
+			camera.position.z = 20;
 			
 			render();
 		</script>
