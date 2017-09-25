@@ -14,164 +14,183 @@
 	</head>
 	<body>
 
+        <script src="js/OrbitControls.js"></script>
 		<script src="js/three.min.js"></script>
 		
 		<!--<script src="js/SpotLight.js"></script>
 		<script src="js/FirstPersonControls.js"></script>-->
 
 		<script>
+            // ############################################## init #####################################################
 			var scene = new THREE.Scene();
-			
+
 			var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-			
+
 			var renderer = new THREE.WebGLRenderer();
 			renderer.setSize(window.innerWidth, window.innerHeight);
 			renderer.setClearColor(0x000000);
 			document.body.appendChild(renderer.domElement);
-			
 
+            document.documentElement.style.overflow = 'hidden';  // firefox, chrome
 
-			
-			//var groundMaterial = new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } );
-			var groundMaterial = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
-			
-			var ground = new THREE.Mesh( new THREE.PlaneBufferGeometry(100,100,2,2), groundMaterial);
-			ground.position.y = -2;
-			ground.rotation.x = - Math.PI / 2;
-			scene.add(ground);
-			
+            var floorMat = new THREE.MeshPhongMaterial( { color: 0x6d6d6d } );
+
+            var floor = new THREE.Mesh( new THREE.PlaneBufferGeometry(200,200,1,1), floorMat);
+            floor.position.y = -15;
+            floor.rotation.x = - Math.PI / 2;
+            scene.add(floor);
+
 			var raycaster = new THREE.Raycaster();
-			
+
 			var balDirection = new THREE.Vector3();
 			balDirection.z = -1;
-			balDirection.x = -.5;
 			balDirection.normalize();
-			
-			var speed = new THREE.Vector3();
-			
-			var clock = new THREE.Clock();
-			
-			//var blueMaterial = new THREE.MeshBasicMaterial( { color: 0x0040ff } );
-			var blueMaterial = new THREE.MeshPhongMaterial( { color: 0x0040ff } );
-			
-			
-			
-			//var greenMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-			var greenMaterial = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
 
-			
+			var speed = new THREE.Vector3();
+
+			var clock = new THREE.Clock();
+
 			var rotationPerFrame = 0.05;
 			var rotationVector = new THREE.Vector3(rotationPerFrame,rotationPerFrame,rotationPerFrame);
-			
+
 			//scene.add(new THREE.AmbientLight(0xf0f0f0));
 			scene.add( new THREE.AmbientLight(0x111111));
-			
-			var sphere = new THREE.SphereGeometry(0.5, 16, 8);
-			
-			var light1 = new THREE.PointLight(0xff0040, 1.5, 100);
-			light1.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial( { color: 0xff0040 } )));
-			light1.position.set(0, 4, -15);
-			scene.add(light1);
-			
-			var light2 = new THREE.PointLight(0xf0f0f0, 0.5, 100);
-			light2.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } )));
-			light2.position.set(-15, 4, -15);
-			scene.add(light2);
-			
-			var light3 = new THREE.PointLight(0xf0f0f0, 0.5, 100);
-			light3.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } )));
-			light3.position.set(15, 4, -15);
-			scene.add(light3);
 
-			var lGeometry = new THREE.BoxGeometry(1,1,40);
-			var lGeometry2 = new THREE.BoxGeometry(25,1,1);
-			
-			var randen = new THREE.Group();
-			var lMaterial = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
-			var rand0 = new THREE.Mesh(lGeometry,lMaterial);
-			var rand1 = new THREE.Mesh(lGeometry,lMaterial);
-			var rand2 = new THREE.Mesh(lGeometry2,lMaterial);
-			var rand3 = new THREE.Mesh(lGeometry2,lMaterial);
-			randen.add(rand0);
-			randen.add(rand1);
-			randen.add(rand2);
-			randen.add(rand3);
-			//scene.add(randen);
-			
-			
-			var zranden = new THREE.Group(); 
-			zranden.add(rand2);
-			zranden.add(rand3);
-			
-			var xranden = new THREE.Group(); 
-			xranden.add(rand0);
-			xranden.add(rand1);
-			
-			scene.add(zranden);
-			scene.add(xranden);
-			
-			rand0.position.set(-10,0,0);
-			rand1.position.set(10,0,0);
-			rand2.position.set(0,0,-20);
-			rand3.position.set(0,0,20);
-			
-			
-			var ballen = new THREE.Group();
-			var witteBal = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0xFFFFFF}));
-			
-			for (var i = 1; i < 16; i++){
-			    if (i % 2 == 0) {
+			var sphere = new THREE.SphereGeometry(0.5, 16, 8);
+
+			var light1 = new THREE.PointLight(0xf0f0f0, 1.5, 100);
+			light1.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } )));
+			light1.position.set(0, 40, 0);
+			scene.add(light1);
+
+
+            // ############################################ pooltafel ##################################################
+            var poolTafel = new THREE.Group();
+
+            var tafelKleedMat = new THREE.MeshPhongMaterial({color: 0x00ff00});
+
+            var tafelKleed = new THREE.Mesh(new THREE.BoxGeometry(20, 40, 1), tafelKleedMat);
+            tafelKleed.position.y = -1;
+            tafelKleed.rotation.x = -Math.PI / 2;
+
+            poolTafel.add(tafelKleed);
+
+            var xRandGeo = new THREE.BoxGeometry(1, 1, 40);
+            var zRandGeo = new THREE.BoxGeometry(21, 1, 1);
+            var tafelPootGeo = new THREE.BoxGeometry(1, 40, 1);
+
+            var randMat = new THREE.MeshPhongMaterial({color: 0x1989a8});
+            var rand0 = new THREE.Mesh(xRandGeo, randMat);
+            var rand1 = new THREE.Mesh(xRandGeo, randMat);
+            var rand2 = new THREE.Mesh(zRandGeo, randMat);
+            var rand3 = new THREE.Mesh(zRandGeo, randMat);
+
+            var zranden = new THREE.Group();
+            zranden.add(rand2);
+            zranden.add(rand3);
+
+            var xranden = new THREE.Group();
+            xranden.add(rand0);
+            xranden.add(rand1);
+
+            poolTafel.add(zranden);
+            poolTafel.add(xranden);
+
+            rand0.position.set(-10, 0, 0);
+            rand1.position.set(10, 0, 0);
+            rand2.position.set(0, 0, -20);
+            rand3.position.set(0, 0, 20);
+
+            var tafelPoten = new THREE.Group();
+
+            tafelPoot1 = new THREE.Mesh(tafelPootGeo, randMat);
+            tafelPoot2 = new THREE.Mesh(tafelPootGeo, randMat);
+            tafelPoot3 = new THREE.Mesh(tafelPootGeo, randMat);
+            tafelPoot4 = new THREE.Mesh(tafelPootGeo, randMat);
+
+            tafelPoten.add(tafelPoot1, tafelPoot2, tafelPoot3, tafelPoot4);
+
+            tafelPoot1.position.set(-10, -20, 20);
+            tafelPoot2.position.set(10, -20, 20);
+            tafelPoot3.position.set(10, -20, -20);
+            tafelPoot4.position.set(-10, -20, -20);
+
+            poolTafel.add(tafelPoten);
+
+            scene.add(poolTafel);
+
+
+            // ############################################# balls #####################################################
+            var ballen = new THREE.Group();
+            var witteBal = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0xFFFFFF}));
+
+            for (var i = 1; i < 16; i++) {
+                if (i % 2 == 0) {
                     var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0xff0040}));
                 }
                 else {
-                    if (i == 5) {
+                    if (i == 11) {
                         var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0x00000}));
                     }
-					else
-					{
-                    var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0x0040ff}));
-                	}
-				}
-			
-				ballen.add(Poolball);
-			}
-		
-			
-			scene.add(ballen);
-			scene.add(witteBal);
-			witteBal.position.x = 0;
-			witteBal.position.z = -8;
+                    else {
+                        var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0x0040ff}));
+                    }
+                }
+
+                ballen.add(Poolball);
+            }
 
 
-			ballen.position.z = -15;
-			ballen.position.x = -5;
+            scene.add(ballen);
+            scene.add(witteBal);
+            witteBal.position.x = 0;
+            witteBal.position.z = 10;
 
 
-			
-			for (var i = 0; i < ballen.children.length; i++){
-			ballen.children[i].position.x += i;
-			}
-			
-			
-			
+            ballen.position.z = 1;
+            ballen.position.x = -5;
 
-			
-			
-			
+
+            for (var i = 0; i < ballen.children.length; i++) {
+                ballen.children[i].position.z = 1;
+                ballen.children[i].position.x = i;
+                if (i >= 5) {
+                    ballen.children[i].position.x = i - 4.5;
+                    ballen.children[i].position.z = 2;
+                }
+                if (i >= 9) {
+                    ballen.children[i].position.x = i - 8;
+                    ballen.children[i].position.z = 3;
+                }
+                if (i >= 12) {
+                    ballen.children[i].position.x = i - 10.5;
+                    ballen.children[i].position.z = 4;
+                }
+                if (i >= 14) {
+                    ballen.children[i].position.x = i - 12;
+                    ballen.children[i].position.z = 5;
+                }
+            }
+
+
+            ballen.position.x = -2;
+            ballen.position.z = -8;
+
+			var move = false;
+
+            // ############################################# render ###################################################
 			function render() {
+			    if (move) witteBal.position.add(speed.copy(balDirection).multiplyScalar(clock.getDelta()*20));
 
-			
-				renderer.setSize(window.innerWidth, window.innerHeight);
-
-
-				camera.lookAt(witteBal.position);
+                renderer.setSize(window.innerWidth, window.innerHeight);
 
 
-				requestAnimationFrame(render);
-				raycaster.setFromCamera(mouse, camera);
-				renderer.render(scene,camera);
+                camera.lookAt(witteBal.position);
 
-                witteBal.position.add(speed.copy(balDirection).multiplyScalar(clock.getDelta()*20));
+
+                requestAnimationFrame(render);
+                raycaster.setFromCamera(mouse, camera);
+                renderer.render(scene, camera);
 
                 raycaster.set(witteBal.position, balDirection);
 
@@ -180,9 +199,9 @@
 				if(intersections.length > 0) {
                     var intersection = intersections[0];
 
-                    if(intersection.distance < 1) {
-                        intersection.object.position.add(speed.copy(new THREE.Vector3(0,0,-1)).multiplyScalar(clock.getDelta()*20));
-                        //balDirection = new THREE.Vector3(-balDirection.x, -balDirection.y, -balDirection.z);
+                    if(intersection.distance <= 0.5) {
+                        intersection.object.position.add(speed.copy(balDirection).multiplyScalar(clock.getDelta()*20));
+                        balDirection = new THREE.Vector3(-balDirection.x, -balDirection.y, -balDirection.z);
                     }
                 }
 				
@@ -191,7 +210,7 @@
 				if(intersections.length > 0) {
                     var intersection = intersections[0];
 
-                    if(intersection.distance < 1) {
+                    if(intersection.distance <= 0.5) {
                         //intersection.object.position.add(speed.copy(new THREE.Vector3(0,0,-1)).multiplyScalar(clock.getDelta()*20));
                         balDirection = new THREE.Vector3(balDirection.x, 0, -balDirection.z);
                     }
@@ -202,7 +221,7 @@
 				if(intersections.length > 0) {
                     var intersection = intersections[0];
 
-                    if(intersection.distance < 1) {
+                    if(intersection.distance <= 0.5) {
                         //intersection.object.position.add(speed.copy(new THREE.Vector3(0,0,-1)).multiplyScalar(clock.getDelta()*20));
                         balDirection = new THREE.Vector3(-balDirection.x, 0, balDirection.z);
                     }
@@ -212,23 +231,32 @@
 			}
 			
 			
-			
+			// ########################################## mouse events #################################################
 			var mouse = new THREE.Vector2();
 			
-			document.addEventListener('mousemove', onDocumentMouseMove, false);
-			
-			function onDocumentMouseMove(event) {
 
-                event.preventDefault();
-				
-				mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-				mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-			}
-			
-			camera.position.y = 10;
-			camera.position.z = 20;
-			
-			render();
+
+			document.addEventListener('click', function(){
+			    move = true;
+
+                Console.log(event);
+            });
+
+
+            camera.position.set(x = 0,y = 10,z = 25);
+
+			document.addEventListener('mousewheel', function(event) {
+                if (event.wheelDelta < 0 ) {
+                    if (camera.position.y < 30) camera.position.y++;
+                }
+                else {
+                    if(camera.position.y > -15) camera.position.y--;
+                }
+
+            });
+
+
+            render();
 		</script>
 	</body>
 </html>
