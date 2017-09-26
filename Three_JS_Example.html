@@ -26,6 +26,7 @@
 				{
 					this.balDirection = baldirection;
 					this.ball = ball;
+					this.collision = 0;
 				}				
 			}
 		
@@ -43,22 +44,27 @@
 
             document.documentElement.style.overflow = 'hidden';  // firefox, chrome
 
-            var floorMat = new THREE.MeshPhongMaterial( { color: 0x6d6d6d } );
+            THREE.ImageUtils.crossOrigin = 'anonymous';
+            texture = THREE.ImageUtils.loadTexture('img/front.jpg');
+            texture.minFilter = THREE.LinearFilter;
+            material = new THREE.MeshBasicMaterial({map: texture});
 
-            var floor = new THREE.Mesh( new THREE.PlaneBufferGeometry(200,200,1,1), floorMat);
+
+            //var groundTexture = new THREE.TextureLoader().load('img/front.jpg');
+
+
+            //var floorMat = new THREE.MeshPhongMaterial( { map: groundTexture  } );
+
+            var floor = new THREE.Mesh( new THREE.PlaneBufferGeometry(200,200,1,1), material);
             floor.position.y = -15;
             floor.rotation.x = - Math.PI / 2;
             scene.add(floor);
 
 			var raycaster = new THREE.Raycaster();
 
-			var balDirection = new THREE.Vector3();
-			balDirection.z = -1;
-			balDirection.normalize();
-			
 			
 			var poolBallen = [];
-			
+            var alleBallen = [];
 		
 
 			var speed = new THREE.Vector3();
@@ -73,7 +79,7 @@
 
 			var sphere = new THREE.SphereGeometry(0.5, 16, 8);
 
-			var light1 = new THREE.PointLight(0xf0f0f0, 1.5, 100);
+			var light1 = new THREE.PointLight(0xf0f0f0, 1.2, 100, 1);
 			light1.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } )));
 			light1.position.set(0, 40, 0);
 			scene.add(light1);
@@ -82,7 +88,7 @@
             // ############################################ pooltafel ##################################################
             var poolTafel = new THREE.Group();
 
-            var tafelKleedMat = new THREE.MeshPhongMaterial({color: 0x00ff00});
+            var tafelKleedMat = new THREE.MeshPhongMaterial({color: 0x228B22});
 
             var tafelKleed = new THREE.Mesh(new THREE.BoxGeometry(20, 40, 1), tafelKleedMat);
             tafelKleed.position.y = -1;
@@ -94,7 +100,7 @@
             var zRandGeo = new THREE.BoxGeometry(21, 1, 1);
             var tafelPootGeo = new THREE.BoxGeometry(1, 40, 1);
 
-            var randMat = new THREE.MeshPhongMaterial({color: 0x1989a8});
+            var randMat = new THREE.MeshPhongMaterial({color: 0x8B4513});
             var rand0 = new THREE.Mesh(xRandGeo, randMat);
             var rand1 = new THREE.Mesh(xRandGeo, randMat);
             var rand2 = new THREE.Mesh(zRandGeo, randMat);
@@ -158,21 +164,37 @@
 			
 			//ballen array
 			for (var i = 0 ; i < ballen.children.length; i ++){
-			
+
+                ballen.children[i].name = "bal" + i;
 			var bal = new PoolBal(new THREE.Vector3(0,0,0), ballen.children[i]);
-			poolBallen.push(bal);
+				bal.name = "poolbal" + i;
+				poolBallen.push(bal);
+				alleBallen.push(ballen.children[i]);
 			}
-			poolBallen.push(new PoolBal(new THREE.Vector3(0,0,0), witteBal));
-			
+
+			witteBal.name = "bal" + 15;
+            alleBallen.push(witteBal);
+
+
+
+			//wittebal snelheid
+            var wittePoolBal = new PoolBal(new THREE.Vector3(0.2, 0, -0.5), witteBal);
+            wittePoolBal.name = "poolbal" + 15;
+			poolBallen.push(wittePoolBal);
+
+
 			function returnBalDir(ball){
 			
 				for (var i = 0; i < poolBallen.length; i++){
-					if (poolBallen[i].ball.id == ball.id)
+
+					if (poolBallen[i].name == ball)
 					{
 						return poolBallen[i];
 					}
 				}
 			}
+
+
 
             scene.add(ballen);
             scene.add(witteBal);
@@ -180,46 +202,96 @@
             witteBal.position.z = 10;
 
 
-            ballen.position.z = 1;
-            ballen.position.x = -5;
+           // ballen.position.z = 1;
+            //ballen.position.x = -5;
 
 
             for (var i = 0; i < ballen.children.length; i++) {
-                ballen.children[i].position.z = 1;
-                ballen.children[i].position.x = i;
+                ballen.children[i].position.z = 0;
+                ballen.children[i].position.x = i * 2;
                 if (i >= 5) {
-                    ballen.children[i].position.x = i - 4.5;
+                    ballen.children[i].position.x = (i - 4.5) * 2;
                     ballen.children[i].position.z = 2;
                 }
                 if (i >= 9) {
-                    ballen.children[i].position.x = i - 8;
+                    ballen.children[i].position.x = (i - 8) * 2;
                     ballen.children[i].position.z = 3;
                 }
                 if (i >= 12) {
-                    ballen.children[i].position.x = i - 10.5;
+                    ballen.children[i].position.x = (i - 10.5) * 2;
                     ballen.children[i].position.z = 4;
                 }
                 if (i >= 14) {
-                    ballen.children[i].position.x = i - 12;
-                    ballen.children[i].position.z = 8;
+                    ballen.children[i].position.x = (i - 12) * 2;
+                    ballen.children[i].position.z = 5;
                 }
             }
 
 
-            ballen.position.x = -2;
-            ballen.position.z = -8;
+            ballen.position.x = 0;
+            ballen.position.z = 0;
 
 			var move = false;
 
+
+
+			// ************************************* MANAGE BOUNCE ***************************************
+
+			function BounceMyBalls(ball, ball2)
+			{
+
+			    console.log(ball.name + ball2.name);
+
+			    var mass = 1;
+
+				var dx = ball.ball.position.x - ball2.ball.position.x;
+                var dy = ball.ball.position.z - ball2.ball.position.z;
+
+                var collision_angle = Math.atan2(dy, dx);
+                var magnitude_1 = Math.sqrt(ball.balDirection.x * ball.balDirection.x + ball.balDirection.z * ball.balDirection.z  )
+                var magnitude_2 = Math.sqrt(ball2.balDirection.x * ball2.balDirection.x + ball2.balDirection.z * ball2.balDirection.z  )
+
+				var direction_1 = Math.atan2( ball.balDirection.z, ball.balDirection.x);
+                var direction_2 = Math.atan2( ball2.balDirection.z, ball2.balDirection.x);
+
+				var new_xspeed_1 = magnitude_1 * Math.cos(direction_1 - collision_angle);
+                var new_yspeed_1 = magnitude_1 * Math.sin(direction_1 - collision_angle);
+                var new_xspeed_2 = magnitude_2 * Math.cos(direction_2 - collision_angle);
+                var new_yspeed_2 = magnitude_2 * Math.sin(direction_2 - collision_angle);
+
+                var final_xspeed_1 = ((mass-mass)*new_xspeed_1+(mass+mass)*new_xspeed_2)/(mass+mass);
+                var final_xspeed_2 = ((mass+mass)*new_xspeed_1+(mass-mass)*new_xspeed_2)/(mass+mass);
+                var final_yspeed_1 = new_yspeed_1;
+                var final_yspeed_2 = new_yspeed_2;
+
+                var drag = 0.7;
+
+                ball.balDirection.x = drag * (Math.cos(collision_angle)*final_xspeed_1+Math.cos(collision_angle+Math.PI/2)*final_yspeed_1);
+                ball.balDirection.z = drag * (Math.sin(collision_angle)*final_xspeed_1+Math.sin(collision_angle+Math.PI/2)*final_yspeed_1);
+                ball2.balDirection.x = drag * (Math.cos(collision_angle)*final_xspeed_2+Math.cos(collision_angle+Math.PI/2)*final_yspeed_2);
+                ball2.balDirection.z = drag * (Math.sin(collision_angle)*final_xspeed_2+Math.sin(collision_angle+Math.PI/2)*final_yspeed_2);
+
+
+			}
+
+
+
             // ############################################# render ###################################################
 			function render() {
-                if (move) witteBal.position.add(speed.copy(balDirection).multiplyScalar(clock.getDelta() * 20));
 
+				var clockDelta = clock.getDelta() * 20;
+
+                if (move)
+				{
+                    poolBallen[15].balDirection.y = 0;
+					witteBal.position.add(speed.copy(poolBallen[15].balDirection).multiplyScalar(clockDelta));
+                    //poolBallen[15].ball.position.add(poolBallen[15].balDirection);
+                }
 
                 for (var i = 0; i < ballen.children.length; i++) {
-                    //console.log(poolBallen[i].ball.position);
-                    poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection).multiplyScalar(clock.getDelta() * 20));
-                    console.log(poolBallen[i].balDirection);
+                    poolBallen[i].balDirection.y = 0;
+                    //poolBallen[i].ball.position.add(poolBallen[i].balDirection);
+                    poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection).multiplyScalar(clockDelta));
                 }
 
 
@@ -233,7 +305,69 @@
                 raycaster.setFromCamera(mouse, camera);
                 renderer.render(scene, camera);
 
+
+
+
+
+
 				//ball met bal
+				/*
+                for (var i = 0; i < poolBallen.length; i++ ) {
+                    raycaster.set(poolBallen[i].ball.position, poolBallen[i].balDirection);
+                    var intersections = raycaster.intersectObjects(alleBallen);
+                    if (intersections.length > 0) {
+                        var intersection = intersections[0];
+                        if (intersection.distance <= .5) {
+                            BounceMyBalls(poolBallen[i],  returnBalDir("pool" + intersection.object.name));
+                        }
+                    }
+
+				*/
+
+
+
+                for (var x=0; x < poolBallen.length; x++)
+                {
+                    for (var y=0; y < poolBallen.length; y++)
+                    {
+                        if (x == y) continue;
+
+                        var distance_x = Math.abs(poolBallen[x].ball.position.x-poolBallen[y].ball.position.x);
+                        var distance_y = Math.abs(poolBallen[x].ball.position.z-poolBallen[y].ball.position.z);
+                        var distance = Math.sqrt(distance_x*distance_x+distance_y*distance_y);
+
+
+
+
+                        //Distance kloppen dus niet
+
+                        if (distance <= 0.3 && (poolBallen[x].collision == 0 || poolBallen[y].collision == 0))
+                        {
+                            poolBallen[x].collision = 1;
+                            poolBallen[y].collision = 1;
+                            BounceMyBalls(poolBallen[x], poolBallen[y]);
+                        }
+                        else if (distance> 30)
+                        {
+                            poolBallen[x].collision = 0;
+                            poolBallen[y].collision = 0;
+                        }
+
+                       //console.log(distance);
+
+                        //indow.console.log(distance)
+                    }
+                }
+
+
+
+
+
+
+
+
+
+				/*
                 for (x=0; x<=ballen.length; x++)
                 {
                     for (y=x+1; y<ballen.length; y++)
@@ -256,38 +390,44 @@
 
                         //window.console.log(distance)
                     }
+
                 }
 
+                      */
 
 
-
-				//wittebal
-
-                raycaster.set(witteBal.position, balDirection);
+				//randen
 
 
+				for (var i = 0; i < poolBallen.length; i++ ) {
+                    raycaster.set(poolBallen[i].ball.position, poolBallen[i].balDirection);
 
-				var intersections = raycaster.intersectObjects(zranden.children);
+                    var intersections = raycaster.intersectObjects(zranden.children);
 
-				if(intersections.length > 0) {
-                    var intersection = intersections[0];
+                    if (intersections.length > 0) {
+                        var intersection = intersections[0];
 
-                    if(intersection.distance <= 0.5) {
-                        //intersection.object.position.add(speed.copy(new THREE.Vector3(0,0,-1)).multiplyScalar(clock.getDelta()*20));
-                        balDirection = new THREE.Vector3(balDirection.x, 0, -balDirection.z);
+                        if (intersection.distance <= .5) {
+                            poolBallen[i].balDirection.z *= -1;
+                        }
                     }
-                }
 
-				var intersections = raycaster.intersectObjects(xranden.children);
+                    var intersections = raycaster.intersectObjects(xranden.children);
 
-				if(intersections.length > 0) {
-                    var intersection = intersections[0];
+                    if (intersections.length > 0) {
+                        var intersection = intersections[0];
 
-                    if(intersection.distance <= 0.5) {
-                        //intersection.object.position.add(speed.copy(new THREE.Vector3(0,0,-1)).multiplyScalar(clock.getDelta()*20));
-                        balDirection = new THREE.Vector3(-balDirection.x, 0, balDirection.z);
+                        if (intersection.distance <= .5) {
+                            poolBallen[i].balDirection.x *= -1;
+                        }
                     }
+
                 }
+
+
+
+
+
 
 			}
 			
@@ -304,10 +444,10 @@
 				e1.preventDefault();
 				document.addEventListener('mousemove', function(e2){
 					if(mx < e2.pageX){
-						console.log("left");
+						//console.log("left");
 					}
 					else{
-						console.log("right");
+						//console.log("right");
 					}
 				})
 			});
