@@ -47,7 +47,11 @@
             THREE.ImageUtils.crossOrigin = 'anonymous';
             texture = THREE.ImageUtils.loadTexture('img/front.jpg');
             texture.minFilter = THREE.LinearFilter;
-            material = new THREE.MeshBasicMaterial({map: texture});
+            material = new THREE.MeshBasicMaterial({
+			//map: texture
+			color: 0xf0f0f0
+			
+			});
 
 
             //var groundTexture = new THREE.TextureLoader().load('img/front.jpg');
@@ -177,8 +181,8 @@
 
 
 
-			//wittebal snelheid
-            var wittePoolBal = new PoolBal(new THREE.Vector3(0.2, 0, -0.5), witteBal);
+
+            var wittePoolBal = new PoolBal(new THREE.Vector3(0, 0, 0), witteBal);
             wittePoolBal.name = "poolbal" + 15;
 			poolBallen.push(wittePoolBal);
 
@@ -207,23 +211,23 @@
 
 
             for (var i = 0; i < ballen.children.length; i++) {
-                ballen.children[i].position.z = 0;
-                ballen.children[i].position.x = i * 2;
+                ballen.children[i].position.z = -5;
+                ballen.children[i].position.x = (i * 1.2) -2;
                 if (i >= 5) {
-                    ballen.children[i].position.x = (i - 4.5) * 2;
-                    ballen.children[i].position.z = 2;
+                    ballen.children[i].position.x = ((i - 4.5) * 1.2) -2;
+                    ballen.children[i].position.z = -4;
                 }
                 if (i >= 9) {
-                    ballen.children[i].position.x = (i - 8) * 2;
-                    ballen.children[i].position.z = 3;
+                    ballen.children[i].position.x = ((i - 8) * 1.2) -2;
+                    ballen.children[i].position.z = -3;
                 }
                 if (i >= 12) {
-                    ballen.children[i].position.x = (i - 10.5) * 2;
-                    ballen.children[i].position.z = 4;
+                    ballen.children[i].position.x = ((i - 10.5) * 1.2) -2;
+                    ballen.children[i].position.z = -2;
                 }
                 if (i >= 14) {
-                    ballen.children[i].position.x = (i - 12) * 2;
-                    ballen.children[i].position.z = 5;
+                    ballen.children[i].position.x = ((i - 12) * 1.2) -2;
+                    ballen.children[i].position.z = -1;
                 }
             }
 
@@ -231,17 +235,12 @@
             ballen.position.x = 0;
             ballen.position.z = 0;
 
-			var move = false;
-
 
 
 			// ************************************* MANAGE BOUNCE ***************************************
 
 			function BounceMyBalls(ball, ball2)
 			{
-
-			    console.log(ball.name + ball2.name);
-
 			    var mass = 1;
 
 				var dx = ball.ball.position.x - ball2.ball.position.x;
@@ -264,12 +263,10 @@
                 var final_yspeed_1 = new_yspeed_1;
                 var final_yspeed_2 = new_yspeed_2;
 
-                var drag = 0.7;
-
-                ball.balDirection.x = drag * (Math.cos(collision_angle)*final_xspeed_1+Math.cos(collision_angle+Math.PI/2)*final_yspeed_1);
-                ball.balDirection.z = drag * (Math.sin(collision_angle)*final_xspeed_1+Math.sin(collision_angle+Math.PI/2)*final_yspeed_1);
-                ball2.balDirection.x = drag * (Math.cos(collision_angle)*final_xspeed_2+Math.cos(collision_angle+Math.PI/2)*final_yspeed_2);
-                ball2.balDirection.z = drag * (Math.sin(collision_angle)*final_xspeed_2+Math.sin(collision_angle+Math.PI/2)*final_yspeed_2);
+                ball.balDirection.x = Math.cos(collision_angle)*final_xspeed_1+Math.cos(collision_angle+Math.PI/2)*final_yspeed_1;
+                ball.balDirection.z = Math.sin(collision_angle)*final_xspeed_1+Math.sin(collision_angle+Math.PI/2)*final_yspeed_1;
+                ball2.balDirection.x = Math.cos(collision_angle)*final_xspeed_2+Math.cos(collision_angle+Math.PI/2)*final_yspeed_2;
+                ball2.balDirection.z = Math.sin(collision_angle)*final_xspeed_2+Math.sin(collision_angle+Math.PI/2)*final_yspeed_2;
 
 
 			}
@@ -281,17 +278,16 @@
 
 				var clockDelta = clock.getDelta() * 20;
 
-                if (move)
-				{
-                    poolBallen[15].balDirection.y = 0;
-					witteBal.position.add(speed.copy(poolBallen[15].balDirection).multiplyScalar(clockDelta));
-                    //poolBallen[15].ball.position.add(poolBallen[15].balDirection);
-                }
+                var drag = 0.996;
+
+				poolBallen[15].balDirection.y = 0;
+				witteBal.position.add(speed.copy(poolBallen[15].balDirection.multiplyScalar(drag)).multiplyScalar(clockDelta));
+				//poolBallen[15].ball.position.add(poolBallen[15].balDirection);
 
                 for (var i = 0; i < ballen.children.length; i++) {
                     poolBallen[i].balDirection.y = 0;
                     //poolBallen[i].ball.position.add(poolBallen[i].balDirection);
-                    poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection).multiplyScalar(clockDelta));
+                    poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection.multiplyScalar(drag)).multiplyScalar(clockDelta));
                 }
 
 
@@ -328,26 +324,19 @@
 
                 for (var x=0; x < poolBallen.length; x++)
                 {
-                    for (var y=0; y < poolBallen.length; y++)
+                    for (var y=x+1; y < poolBallen.length; y++)
                     {
-                        if (x == y) continue;
-
                         var distance_x = Math.abs(poolBallen[x].ball.position.x-poolBallen[y].ball.position.x);
                         var distance_y = Math.abs(poolBallen[x].ball.position.z-poolBallen[y].ball.position.z);
                         var distance = Math.sqrt(distance_x*distance_x+distance_y*distance_y);
-
-
-
-
-                        //Distance kloppen dus niet
-
-                        if (distance <= 0.3 && (poolBallen[x].collision == 0 || poolBallen[y].collision == 0))
+					
+                        if (distance <= 1 && (poolBallen[x].collision == 0 || poolBallen[y].collision == 0))
                         {
                             poolBallen[x].collision = 1;
                             poolBallen[y].collision = 1;
                             BounceMyBalls(poolBallen[x], poolBallen[y]);
                         }
-                        else if (distance> 30)
+                        else if (distance> 1)
                         {
                             poolBallen[x].collision = 0;
                             poolBallen[y].collision = 0;
@@ -436,7 +425,11 @@
 			var mouse = new THREE.Vector2();
 
 			document.addEventListener('click', function(){
-			    move = true;
+			
+			
+			    poolBallen[15].balDirection = new THREE.Vector3(camera.rotation.z,0,camera.rotation.x);
+				
+				
             });
 
 			document.addEventListener('contextmenu', function(e1){
