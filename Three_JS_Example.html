@@ -20,6 +20,17 @@
 		<script src="js/FirstPersonControls.js"></script>-->
 
 		<script>
+		
+			class PoolBal{
+				constructor(baldirection, ball)
+				{
+					this.balDirection = baldirection;
+					this.ball = ball;
+				}				
+			}
+		
+		
+		
             // ############################################## init #####################################################
 			var scene = new THREE.Scene();
 
@@ -44,6 +55,11 @@
 			var balDirection = new THREE.Vector3();
 			balDirection.z = -1;
 			balDirection.normalize();
+			
+			
+			var poolBallen = [];
+			
+		
 
 			var speed = new THREE.Vector3();
 
@@ -139,6 +155,24 @@
                 ballen.add(Poolball);
             }
 
+			
+			//ballen array
+			for (var i = 0 ; i < ballen.children.length; i ++){
+			
+			var bal = new PoolBal(new THREE.Vector3(0,0,0), ballen.children[i]);
+			poolBallen.push(bal);
+			}
+			
+			
+			function returnBalDir(ball){
+			
+				for (var i = 0; i < poolBallen.length; i++){
+					if (poolBallen[i].ball.id == ball.id)
+					{
+						return poolBallen[i];
+					}
+				}
+			}
 
             scene.add(ballen);
             scene.add(witteBal);
@@ -167,7 +201,7 @@
                 }
                 if (i >= 14) {
                     ballen.children[i].position.x = i - 12;
-                    ballen.children[i].position.z = 5;
+                    ballen.children[i].position.z = 8;
                 }
             }
 
@@ -181,6 +215,15 @@
 			function render() {
 			    if (move) witteBal.position.add(speed.copy(balDirection).multiplyScalar(clock.getDelta()*20));
 
+				
+				for (var i = 0; i < ballen.children.length; i ++)
+				{
+					//console.log(poolBallen[i].ball.position);
+					 poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection).multiplyScalar(clock.getDelta()*20));
+					 console.log(poolBallen[i].balDirection);
+				}
+				
+				
                 renderer.setSize(window.innerWidth, window.innerHeight);
 
 
@@ -191,6 +234,12 @@
                 raycaster.setFromCamera(mouse, camera);
                 renderer.render(scene, camera);
 
+			
+				
+				
+				
+				//wittebal
+				
                 raycaster.set(witteBal.position, balDirection);
 
                 var intersections = raycaster.intersectObjects(ballen.children);
@@ -199,8 +248,17 @@
                     var intersection = intersections[0];
 
                     if(intersection.distance <= 0.5) {
-                        intersection.object.position.add(speed.copy(balDirection).multiplyScalar(clock.getDelta()*20));
-                        balDirection = new THREE.Vector3(-balDirection.x, -balDirection.y, -balDirection.z);
+                        //intersection.object.position.add(speed.copy(balDirection).multiplyScalar(clock.getDelta()*20));
+						console.log(returnBalDir(intersection.object).balDirection);
+						var CurrentWitte = balDirection;
+                        balDirection = returnBalDir(intersection.object).balDirection;
+						returnBalDir(intersection.object).balDirection = CurrentWitte;
+						
+						//console.log(returnBalDir(intersection.object).balDirection);
+						
+						//console.log(intersection.object.id);
+						//var test = returnBalDir(intersection.object);
+						//console.log(poolBallen);
                     }
                 }
 				
@@ -226,6 +284,62 @@
                     }
                 }
 
+				
+				
+				
+				for (var i = 0; i < ballen.children.length; i ++)
+				{
+					raycaster.set(ballen.children[i].position, poolBallen[i].balDirection);
+					var intersections = raycaster.intersectObjects(ballen.children);
+					
+					if(intersections.length > 0) {
+					
+						var intersection = intersections[0];
+						
+						if(intersection.distance <= 0.5) { 
+							var currentDir = poolBallen[i].balDirection;
+							poolBallen[i].balDirection = returnBalDir(intersection.object).balDirection;
+							returnBalDir(intersection.object).balDirection = currentDir;
+							
+						}
+					}
+				
+				
+				
+				
+				
+				
+				var intersections = raycaster.intersectObjects(zranden.children);
+
+				if(intersections.length > 0) {
+                    var intersection = intersections[0];
+
+                    if(intersection.distance <= 0.5) {
+                        //intersection.object.position.add(speed.copy(new THREE.Vector3(0,0,-1)).multiplyScalar(clock.getDelta()*20));
+                        returnBalDir(intersection.object).balDirection.z *= -1;
+                    }
+                }
+				
+				var intersections = raycaster.intersectObjects(xranden.children);
+
+				if(intersections.length > 0) {
+                    var intersection = intersections[0];
+
+                    if(intersection.distance <= 0.5) {
+					
+					console.log(balDirereturnBalDir(intersection.object).balDirectionction);
+                        //intersection.object.position.add(speed.copy(new THREE.Vector3(0,0,-1)).multiplyScalar(clock.getDelta()*20));
+                        balDirereturnBalDir(intersection.object).balDirectionction.x *= -1;
+						
+						console.log(balDirereturnBalDir(intersection.object).balDirectionction);
+						
+						
+						
+                    }
+				}
+				
+				
+				}
 
 			}
 			
