@@ -14,7 +14,6 @@
 	</head>
 	<body>
 
-        <script src="js/OrbitControls.js"></script>
 		<script src="js/three.min.js"></script>
 		
 		<!--<script src="js/SpotLight.js"></script>
@@ -233,26 +232,33 @@
 			
 			// ########################################## mouse events #################################################
 			var mouse = new THREE.Vector2();
-			
-
 
 			document.addEventListener('click', function(){
 			    move = true;
-
-                Console.log(event);
             });
 
+			document.addEventListener('contextmenu', function(e1){
+				var mx = e1.pageX;
+				e1.preventDefault();
+				document.addEventListener('mousemove', function(e2){
+					if(mx < e2.pageX){
+						console.log("left");
+					}
+					else{
+						console.log("right");
+					}
+				})
+			});
 
             camera.position.set(x = 0,y = 10,z = 25);
 
 			document.addEventListener('mousewheel', function(event) {
                 if (event.wheelDelta < 0 ) {
                     if (camera.position.y < 30) camera.position.y++;
-                }
+					                }
                 else {
                     if(camera.position.y > -15) camera.position.y--;
                 }
-
             });
 
 
