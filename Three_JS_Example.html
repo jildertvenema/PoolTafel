@@ -30,7 +30,7 @@
 			}
 		
 		
-		
+		;
             // ############################################## init #####################################################
 			var scene = new THREE.Scene();
 
@@ -162,7 +162,7 @@
 			var bal = new PoolBal(new THREE.Vector3(0,0,0), ballen.children[i]);
 			poolBallen.push(bal);
 			}
-			
+			poolBallen.push(new PoolBal(new THREE.Vector3(0,0,0), witteBal));
 			
 			function returnBalDir(ball){
 			
@@ -213,17 +213,16 @@
 
             // ############################################# render ###################################################
 			function render() {
-			    if (move) witteBal.position.add(speed.copy(balDirection).multiplyScalar(clock.getDelta()*20));
+                if (move) witteBal.position.add(speed.copy(balDirection).multiplyScalar(clock.getDelta() * 20));
 
-				
-				for (var i = 0; i < ballen.children.length; i ++)
-				{
-					//console.log(poolBallen[i].ball.position);
-					 poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection).multiplyScalar(clock.getDelta()*20));
-					 console.log(poolBallen[i].balDirection);
-				}
-				
-				
+
+                for (var i = 0; i < ballen.children.length; i++) {
+                    //console.log(poolBallen[i].ball.position);
+                    poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection).multiplyScalar(clock.getDelta() * 20));
+                    console.log(poolBallen[i].balDirection);
+                }
+
+
                 renderer.setSize(window.innerWidth, window.innerHeight);
 
 
@@ -234,34 +233,40 @@
                 raycaster.setFromCamera(mouse, camera);
                 renderer.render(scene, camera);
 
-			
-				
-				
-				
-				//wittebal
-				
-                raycaster.set(witteBal.position, balDirection);
+				//ball met bal
+                for (x=0; x<=ballen.length; x++)
+                {
+                    for (y=x+1; y<ballen.length; y++)
+                    {
+                        distance_x = Math.abs(ballen[x].position-ballen[y].position);
+                        distance_y = Math.abs(ballen[x].position-ballsArray[y].position);
+                        distance = Math.sqrt(distance_x*distance_x+distance_y*distance_y);
 
-                var intersections = raycaster.intersectObjects(ballen.children);
+                        if (distance<=31 && (ballen[x].collision == 0 || ballen[y].collision == 0))
+                        {
+                            ballsArray[x].collision = 1;
+                            ballsArray[y].collision = 1;
+                            manage_bounce(ballsArray[x], ballsArray[y]);
+                        }
+                        else if (distance>31)
+                        {
+                            ballsArray[x].collision = 0;
+                            ballsArray[y].collision = 0;
+                        }
 
-				if(intersections.length > 0) {
-                    var intersection = intersections[0];
-
-                    if(intersection.distance <= 0.5) {
-                        //intersection.object.position.add(speed.copy(balDirection).multiplyScalar(clock.getDelta()*20));
-						console.log(returnBalDir(intersection.object).balDirection);
-						var CurrentWitte = balDirection;
-                        balDirection = returnBalDir(intersection.object).balDirection;
-						returnBalDir(intersection.object).balDirection = CurrentWitte;
-						
-						//console.log(returnBalDir(intersection.object).balDirection);
-						
-						//console.log(intersection.object.id);
-						//var test = returnBalDir(intersection.object);
-						//console.log(poolBallen);
+                        //window.console.log(distance)
                     }
                 }
-				
+
+
+
+
+				//wittebal
+
+                raycaster.set(witteBal.position, balDirection);
+
+
+
 				var intersections = raycaster.intersectObjects(zranden.children);
 
 				if(intersections.length > 0) {
@@ -272,7 +277,7 @@
                         balDirection = new THREE.Vector3(balDirection.x, 0, -balDirection.z);
                     }
                 }
-				
+
 				var intersections = raycaster.intersectObjects(xranden.children);
 
 				if(intersections.length > 0) {
@@ -283,63 +288,6 @@
                         balDirection = new THREE.Vector3(-balDirection.x, 0, balDirection.z);
                     }
                 }
-
-				
-				
-				
-				for (var i = 0; i < ballen.children.length; i ++)
-				{
-					raycaster.set(ballen.children[i].position, poolBallen[i].balDirection);
-					var intersections = raycaster.intersectObjects(ballen.children);
-					
-					if(intersections.length > 0) {
-					
-						var intersection = intersections[0];
-						
-						if(intersection.distance <= 0.5) { 
-							var currentDir = poolBallen[i].balDirection;
-							poolBallen[i].balDirection = returnBalDir(intersection.object).balDirection;
-							returnBalDir(intersection.object).balDirection = currentDir;
-							
-						}
-					}
-				
-				
-				
-				
-				
-				
-				var intersections = raycaster.intersectObjects(zranden.children);
-
-				if(intersections.length > 0) {
-                    var intersection = intersections[0];
-
-                    if(intersection.distance <= 0.5) {
-                        //intersection.object.position.add(speed.copy(new THREE.Vector3(0,0,-1)).multiplyScalar(clock.getDelta()*20));
-                        returnBalDir(intersection.object).balDirection.z *= -1;
-                    }
-                }
-				
-				var intersections = raycaster.intersectObjects(xranden.children);
-
-				if(intersections.length > 0) {
-                    var intersection = intersections[0];
-
-                    if(intersection.distance <= 0.5) {
-					
-					console.log(balDirereturnBalDir(intersection.object).balDirectionction);
-                        //intersection.object.position.add(speed.copy(new THREE.Vector3(0,0,-1)).multiplyScalar(clock.getDelta()*20));
-                        balDirereturnBalDir(intersection.object).balDirectionction.x *= -1;
-						
-						console.log(balDirereturnBalDir(intersection.object).balDirectionction);
-						
-						
-						
-                    }
-				}
-				
-				
-				}
 
 			}
 			
