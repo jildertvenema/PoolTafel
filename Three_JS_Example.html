@@ -8,11 +8,16 @@
 			body {
 				width: 100%;
 				height: 100%;
-				margin: 0px;
+				margin: 0;
 			}
 		</style>
 	</head>
 	<body>
+
+	<p style="position: absolute; color: darkred; font-size: 2em">left click shoot, right click reset</p>
+
+
+
 
 		<script src="js/three.min.js"></script>
 		
@@ -27,6 +32,7 @@
 					this.balDirection = baldirection;
 					this.ball = ball;
 					this.collision = 0;
+					this.fall = 0;
 				}				
 			}
 		
@@ -40,16 +46,18 @@
 			var renderer = new THREE.WebGLRenderer();
 			renderer.setSize(window.innerWidth, window.innerHeight);
 			renderer.setClearColor(0x000000);
+            renderer.shadowMapEnabled = true;
 			document.body.appendChild(renderer.domElement);
 
             document.documentElement.style.overflow = 'hidden';  // firefox, chrome
 
             THREE.ImageUtils.crossOrigin = 'anonymous';
-            texture = THREE.ImageUtils.loadTexture('img/front.jpg');
+            texture = THREE.ImageUtils.loadTexture('img/beton.jpg');
+            wood = THREE.ImageUtils.loadTexture('img/wood.jpg');
             texture.minFilter = THREE.LinearFilter;
-            material = new THREE.MeshBasicMaterial({
-			//map: texture
-			color: 0xf0f0f0
+            betonMaterial = new THREE.MeshBasicMaterial({
+			map: texture
+			//color: 0xf0f0f0
 			
 			});
 
@@ -59,9 +67,10 @@
 
             //var floorMat = new THREE.MeshPhongMaterial( { map: groundTexture  } );
 
-            var floor = new THREE.Mesh( new THREE.PlaneBufferGeometry(200,200,1,1), material);
+            var floor = new THREE.Mesh( new THREE.PlaneBufferGeometry(200,200,1,1), betonMaterial);
             floor.position.y = -15;
             floor.rotation.x = - Math.PI / 2;
+            floor.receiveShadow = true;
             scene.add(floor);
 
 			var raycaster = new THREE.Raycaster();
@@ -83,14 +92,28 @@
 
 			var sphere = new THREE.SphereGeometry(0.5, 16, 8);
 
-			var light1 = new THREE.PointLight(0xf0f0f0, 1.2, 100, 1);
+			var light1 = new THREE.DirectionalLight(0xf0f0f0, 1.2, 100, 1);
 			light1.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } )));
-			light1.position.set(0, 40, 0);
+			light1.position.set(10, 40, 0);
+			light1.castShadow = true;
+            light1.shadowDarkness = 0.5;
+
 			scene.add(light1);
+
+
+            wallMaterial = new THREE.MeshBasicMaterial({
+                color: 0xf5f0ff
+
+            });
+			var wall = new THREE.Mesh( new THREE.PlaneBufferGeometry(370,200,1,1), wallMaterial);
+            wall.position.z = -200;
+			scene.add(wall);
 
 
             // ############################################ pooltafel ##################################################
             var poolTafel = new THREE.Group();
+
+
 
             var tafelKleedMat = new THREE.MeshPhongMaterial({color: 0x228B22});
 
@@ -104,7 +127,11 @@
             var zRandGeo = new THREE.BoxGeometry(21, 1, 1);
             var tafelPootGeo = new THREE.BoxGeometry(1, 40, 1);
 
-            var randMat = new THREE.MeshPhongMaterial({color: 0x8B4513});
+            var randMat = new THREE.MeshPhongMaterial({
+                    //color: 0x8B4513
+                    map: wood
+                }
+				);
             var rand0 = new THREE.Mesh(xRandGeo, randMat);
             var rand1 = new THREE.Mesh(xRandGeo, randMat);
             var rand2 = new THREE.Mesh(zRandGeo, randMat);
@@ -141,6 +168,11 @@
             tafelPoot4.position.set(-10, -20, -20);
 
             poolTafel.add(tafelPoten);
+
+            poolTafel.castShadow = true;
+            poolTafel.receiveShadow = false;
+
+            tafelKleedcastShadow = true;
 
             scene.add(poolTafel);
 
@@ -200,37 +232,54 @@
 
 
 
-            scene.add(ballen);
-            scene.add(witteBal);
-            witteBal.position.x = 0;
-            witteBal.position.z = 10;
-
-
            // ballen.position.z = 1;
             //ballen.position.x = -5;
 
+			function resetBalls() {
 
-            for (var i = 0; i < ballen.children.length; i++) {
-                ballen.children[i].position.z = -5;
-                ballen.children[i].position.x = (i * 1.2) -2;
-                if (i >= 5) {
-                    ballen.children[i].position.x = ((i - 4.5) * 1.2) -2;
-                    ballen.children[i].position.z = -4;
+
+                for (var i = 0 ; i < poolBallen.length; i ++){
+                    poolBallen[i].ball.visible = true;
+                    poolBallen[i].balDirection = new THREE.Vector3(0,0,0);
+                    poolBallen[i].ball.position.y = 0;
                 }
-                if (i >= 9) {
-                    ballen.children[i].position.x = ((i - 8) * 1.2) -2;
-                    ballen.children[i].position.z = -3;
+
+
+                scene.add(ballen);
+                scene.add(witteBal);
+
+
+
+
+                witteBal.position.z = 10;
+                witteBal.position.x = 0;
+
+                for (var i = 0; i < ballen.children.length; i++) {
+                    ballen.children[i].position.z = -5;
+                    ballen.children[i].position.x = (i * 1.2) - 2;
+                    if (i >= 5) {
+                        ballen.children[i].position.x = ((i - 4.5) * 1.2) - 2;
+                        ballen.children[i].position.z = -4;
+                    }
+                    if (i >= 9) {
+                        ballen.children[i].position.x = ((i - 8) * 1.2) - 2;
+                        ballen.children[i].position.z = -3;
+                    }
+                    if (i >= 12) {
+                        ballen.children[i].position.x = ((i - 10.5) * 1.2) - 2;
+                        ballen.children[i].position.z = -2;
+                    }
+                    if (i >= 14) {
+                        ballen.children[i].position.x = ((i - 12) * 1.2) - 2;
+                        ballen.children[i].position.z = -1;
+                    }
                 }
-                if (i >= 12) {
-                    ballen.children[i].position.x = ((i - 10.5) * 1.2) -2;
-                    ballen.children[i].position.z = -2;
-                }
-                if (i >= 14) {
-                    ballen.children[i].position.x = ((i - 12) * 1.2) -2;
-                    ballen.children[i].position.z = -1;
-                }
+
+
             }
 
+
+            resetBalls();
 
             ballen.position.x = 0;
             ballen.position.z = 0;
@@ -302,26 +351,6 @@
                 renderer.render(scene, camera);
 
 
-
-
-
-
-				//ball met bal
-				/*
-                for (var i = 0; i < poolBallen.length; i++ ) {
-                    raycaster.set(poolBallen[i].ball.position, poolBallen[i].balDirection);
-                    var intersections = raycaster.intersectObjects(alleBallen);
-                    if (intersections.length > 0) {
-                        var intersection = intersections[0];
-                        if (intersection.distance <= .5) {
-                            BounceMyBalls(poolBallen[i],  returnBalDir("pool" + intersection.object.name));
-                        }
-                    }
-
-				*/
-
-
-
                 for (var x=0; x < poolBallen.length; x++)
                 {
                     for (var y=x+1; y < poolBallen.length; y++)
@@ -341,48 +370,10 @@
                             poolBallen[x].collision = 0;
                             poolBallen[y].collision = 0;
                         }
-
-                       //console.log(distance);
-
-                        //indow.console.log(distance)
                     }
                 }
 
 
-
-
-
-
-
-
-
-				/*
-                for (x=0; x<=ballen.length; x++)
-                {
-                    for (y=x+1; y<ballen.length; y++)
-                    {
-                        distance_x = Math.abs(ballen[x].position-ballen[y].position);
-                        distance_y = Math.abs(ballen[x].position-ballsArray[y].position);
-                        distance = Math.sqrt(distance_x*distance_x+distance_y*distance_y);
-
-                        if (distance<=31 && (ballen[x].collision == 0 || ballen[y].collision == 0))
-                        {
-                            ballsArray[x].collision = 1;
-                            ballsArray[y].collision = 1;
-                            manage_bounce(ballsArray[x], ballsArray[y]);
-                        }
-                        else if (distance>31)
-                        {
-                            ballsArray[x].collision = 0;
-                            ballsArray[y].collision = 0;
-                        }
-
-                        //window.console.log(distance)
-                    }
-
-                }
-
-                      */
 
 
 				//randen
@@ -395,8 +386,14 @@
 
                     if (intersections.length > 0) {
                         var intersection = intersections[0];
-
                         if (intersection.distance <= .5) {
+
+                            if (poolBallen[i].ball.position.x < -8 ||poolBallen[i].ball.position.x  > 8)
+							{
+                                poolBallen[i].balDirection = new THREE.Vector3(0,0,0);
+                                poolBallen[i].fall = 10;
+							}
+
                             poolBallen[i].balDirection.z *= -1;
                         }
                     }
@@ -407,9 +404,26 @@
                         var intersection = intersections[0];
 
                         if (intersection.distance <= .5) {
+
+                            if (poolBallen[i].ball.position.z < -18 ||poolBallen[i].ball.position.z  > 18)
+                            {
+                                poolBallen[i].balDirection = new THREE.Vector3(0,0,0);
+                                poolBallen[i].fall = 10;
+                            }
+
                             poolBallen[i].balDirection.x *= -1;
                         }
                     }
+
+
+                    if (poolBallen[i].fall > 0){
+                        poolBallen[i].fall--;
+                        poolBallen[i].ball.position.y -= .1;
+                        if (poolBallen[i].fall == 0)
+                        {
+                            poolBallen[i].ball.visible = false;
+						}
+					}
 
                 }
 
@@ -425,14 +439,12 @@
 			var mouse = new THREE.Vector2();
 
 			document.addEventListener('click', function(){
-			
-			
-			    poolBallen[15].balDirection = new THREE.Vector3(camera.rotation.z,0,camera.rotation.x);
-				
-				
+                poolBallen[15].balDirection = new THREE.Vector3(0,0,-1.5);
             });
 
+
 			document.addEventListener('contextmenu', function(e1){
+                resetBalls();
 				var mx = e1.pageX;
 				e1.preventDefault();
 				document.addEventListener('mousemove', function(e2){
