@@ -260,6 +260,23 @@
 			circle4.position.x = 9;
 			poolTafel.add( circle4 );
 
+			var circle5 = circle3.clone();
+			circle5.position.z = 0;
+			circle5.position.x = -9.5;
+			poolTafel.add( circle5 );
+
+			var circle6 = circle5.clone();
+			circle6.position.x = 9.5;
+			poolTafel.add( circle6 );
+
+
+			var stokGeometry = new THREE.CylinderGeometry( 0.2, 0.08, 15, 32 );
+			var stokMaterial = new THREE.MeshBasicMaterial( {color: 0xC9A281} );
+			var stokje = new THREE.Mesh( stokGeometry, stokMaterial );
+			stokje.rotateX(-5);
+			stokje.position.y = 3;
+
+			scene.add( stokje );
 
             scene.add(poolTafel);
 
@@ -443,7 +460,7 @@
                     //poolBallen[i].ball.position.add(poolBallen[i].balDirection);
                     poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection.multiplyScalar(drag)).multiplyScalar(clockDelta));
 
-					poolBallen[i].ball.rotateX(poolBallen[i].balDirection.x);
+					poolBallen[i].ball.rotateX(-poolBallen[i].balDirection.x);
 					poolBallen[i].ball.rotateZ(-poolBallen[i].balDirection.z);
                 }
 
@@ -453,6 +470,21 @@
 
                 camera.lookAt(witteBal.position);
 
+
+
+				var StokPositie = new THREE.Vector3(0,0,0);
+				StokPositie.addVectors(witteBal.position, camera.position);
+
+				StokPositie = StokPositie.multiplyScalar(0.5);
+
+				stokje.position.x = StokPositie.x;
+				stokje.position.z = StokPositie.z;
+
+				stokje.rotation.z = -camera.rotation.z;
+
+				//console.log(StokPositie);
+				console.log(stokje.rotation.z);
+				console.log(camera.rotation.z);
 
                 requestAnimationFrame(render);
                 raycaster.setFromCamera(mouse, camera);
@@ -495,7 +527,6 @@
 						{
 							poolBallen[i].balDirection = new THREE.Vector3(0,0,0);
 							poolBallen[i].fall = 1;
-							console.log("fall");
 						}
 						else {
 							poolBallen[i].balDirection.z *= -1 * warmteEnergieRendement;
@@ -503,16 +534,32 @@
 					}
 					if (poolBallen[i].ball.position.x < -9 || poolBallen[i].ball.position.x > 9)
 					{
+
+
 						if ((poolBallen[i].ball.position.z < -18 || poolBallen[i].ball.position.z  > 18) && poolBallen[i].ball.position.y >= 0)
 						{
 							poolBallen[i].balDirection = new THREE.Vector3(0,0,0);
 							poolBallen[i].fall = 1;
-							console.log("fall");
 						}
 						else{
 							poolBallen[i].balDirection.x *= -1 * warmteEnergieRendement;
 						}
 					}
+
+
+
+					//vallen van middelste gaten
+					if (poolBallen[i].ball.position.x < -7.85 || poolBallen[i].ball.position.x > 8.25) {
+
+						if ((poolBallen[i].ball.position.z < 1.5 && poolBallen[i].ball.position.z > -1.5 ) && poolBallen[i].ball.position.y == 0) {
+							poolBallen[i].ball.position.y -= .1;
+							poolBallen[i].balDirection = new THREE.Vector3(0, 0, 0);
+							poolBallen[i].fall = 1;
+							console.log("fall");
+							continue;
+						}
+					}
+
 
 
                     if (poolBallen[i].fall > 0){
@@ -548,7 +595,7 @@
 			document.addEventListener( 'keyup', function (event) {
 
 				if(event.keyCode == 32 && controlsEnabled) {
-					poolBallen[15].balDirection = new THREE.Vector3(1, 0, -1.5);
+					poolBallen[15].balDirection = new THREE.Vector3(.5, 0, -1);
 				}
 
 				else {
