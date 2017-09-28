@@ -235,6 +235,32 @@
 
             tafelKleedcastShadow = true;
 
+
+
+			var circleGeometry = new THREE.CircleBufferGeometry( 1.5, 32 );
+			var blackMaterial = new THREE.MeshBasicMaterial( { color: 0x000000 } );
+			var circle = new THREE.Mesh( circleGeometry, blackMaterial );
+			circle.rotation.x = tafelKleed.rotation.x;
+			circle.position.y =  -0.4;
+
+
+			circle.position.z = -19;
+			circle.position.x = -9;
+			poolTafel.add( circle );
+
+			var circle2 = circle.clone();
+			circle2.position.x = 9;
+			poolTafel.add( circle2 );
+
+			var circle3 = circle.clone();
+			circle3.position.z = 19;
+			poolTafel.add( circle3 );
+
+			var circle4 = circle3.clone();
+			circle4.position.x = 9;
+			poolTafel.add( circle4 );
+
+
             scene.add(poolTafel);
 
 
@@ -243,6 +269,7 @@
             var witteBal = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0xFFFFFF}));
 
             for (var i = 1; i < 16; i++) {
+            	/*
                 if (i % 2 == 0) {
                     var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0xff0040}));
                 }
@@ -254,6 +281,10 @@
                         var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0x0040ff}));
                     }
                 }
+			*/
+
+				var ballTexture = new THREE.TextureLoader().load('balls/' + i + "ball.png");
+				var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({map: ballTexture}));
 
                 ballen.add(Poolball);
             }
@@ -302,6 +333,7 @@
                     poolBallen[i].ball.visible = true;
                     poolBallen[i].balDirection = new THREE.Vector3(0,0,0);
                     poolBallen[i].ball.position.y = 0;
+					poolBallen[i].collision = 0;
                 }
 
 
@@ -337,6 +369,18 @@
 
 
             }
+            
+            
+            function resetWitteBal() {
+				witteBal.position.z = 10;
+				witteBal.position.x = 0;
+				witteBal.position.y = 0;
+				poolBallen[15].ball.visible = true;
+				poolBallen[15].balDirection = new THREE.Vector3(0,0,0);
+				poolBallen[15].ball.position.y = 0;
+				poolBallen[15].collision = 0;
+			}
+            
 
 
             resetBalls();
@@ -348,6 +392,9 @@
 
 			function BounceMyBalls(ball, ball2)
 			{
+
+				var warmteEnergieRendement = 0.95;
+
 			    var mass = 1;
 
 				var dx = ball.ball.position.x - ball2.ball.position.x;
@@ -370,10 +417,10 @@
                 var final_yspeed_1 = new_yspeed_1;
                 var final_yspeed_2 = new_yspeed_2;
 
-                ball.balDirection.x = Math.cos(collision_angle)*final_xspeed_1+Math.cos(collision_angle+Math.PI/2)*final_yspeed_1;
-                ball.balDirection.z = Math.sin(collision_angle)*final_xspeed_1+Math.sin(collision_angle+Math.PI/2)*final_yspeed_1;
-                ball2.balDirection.x = Math.cos(collision_angle)*final_xspeed_2+Math.cos(collision_angle+Math.PI/2)*final_yspeed_2;
-                ball2.balDirection.z = Math.sin(collision_angle)*final_xspeed_2+Math.sin(collision_angle+Math.PI/2)*final_yspeed_2;
+                ball.balDirection.x = warmteEnergieRendement * (Math.cos(collision_angle)*final_xspeed_1+Math.cos(collision_angle+Math.PI/2)*final_yspeed_1);
+                ball.balDirection.z = warmteEnergieRendement  * (Math.sin(collision_angle)*final_xspeed_1+Math.sin(collision_angle+Math.PI/2)*final_yspeed_1);
+                ball2.balDirection.x = warmteEnergieRendement * (Math.cos(collision_angle)*final_xspeed_2+Math.cos(collision_angle+Math.PI/2)*final_yspeed_2);
+                ball2.balDirection.z = warmteEnergieRendement * ( Math.sin(collision_angle)*final_xspeed_2+Math.sin(collision_angle+Math.PI/2)*final_yspeed_2);
 
 
 			}
@@ -395,6 +442,9 @@
                     poolBallen[i].balDirection.y = 0;
                     //poolBallen[i].ball.position.add(poolBallen[i].balDirection);
                     poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection.multiplyScalar(drag)).multiplyScalar(clockDelta));
+
+					poolBallen[i].ball.rotateX(poolBallen[i].balDirection.x);
+					poolBallen[i].ball.rotateZ(-poolBallen[i].balDirection.z);
                 }
 
 
@@ -436,52 +486,50 @@
 
 				//randen
 
+				var warmteEnergieRendement = 0.95;
 
 				for (var i = 0; i < poolBallen.length; i++ ) {
-                    raycaster.set(poolBallen[i].ball.position, poolBallen[i].balDirection);
-
-                    var intersections = raycaster.intersectObjects(zranden.children);
-
-                    if (intersections.length > 0) {
-                        var intersection = intersections[0];
-                        if (intersection.distance <= .5) {
-
-                            if (poolBallen[i].ball.position.x < -8 ||poolBallen[i].ball.position.x  > 8)
-							{
-                                poolBallen[i].balDirection = new THREE.Vector3(0,0,0);
-                                poolBallen[i].fall = 10;
-							}
-
-                            poolBallen[i].balDirection.z *= -1;
-                        }
-                    }
-
-                    var intersections = raycaster.intersectObjects(xranden.children);
-
-                    if (intersections.length > 0) {
-                        var intersection = intersections[0];
-
-                        if (intersection.distance <= .5) {
-
-                            if (poolBallen[i].ball.position.z < -18 ||poolBallen[i].ball.position.z  > 18)
-                            {
-                                poolBallen[i].balDirection = new THREE.Vector3(0,0,0);
-                                poolBallen[i].fall = 10;
-                            }
-
-                            poolBallen[i].balDirection.x *= -1;
-                        }
-                    }
+					if (poolBallen[i].ball.position.z < -19 || poolBallen[i].ball.position.z > 19)
+					{
+						if ((poolBallen[i].ball.position.x < -8 ||poolBallen[i].ball.position.x  > 8) &&  poolBallen[i].ball.position.y >= 0)
+						{
+							poolBallen[i].balDirection = new THREE.Vector3(0,0,0);
+							poolBallen[i].fall = 1;
+							console.log("fall");
+						}
+						else {
+							poolBallen[i].balDirection.z *= -1 * warmteEnergieRendement;
+						}
+					}
+					if (poolBallen[i].ball.position.x < -9 || poolBallen[i].ball.position.x > 9)
+					{
+						if ((poolBallen[i].ball.position.z < -18 || poolBallen[i].ball.position.z  > 18) && poolBallen[i].ball.position.y >= 0)
+						{
+							poolBallen[i].balDirection = new THREE.Vector3(0,0,0);
+							poolBallen[i].fall = 1;
+							console.log("fall");
+						}
+						else{
+							poolBallen[i].balDirection.x *= -1 * warmteEnergieRendement;
+						}
+					}
 
 
                     if (poolBallen[i].fall > 0){
-                        poolBallen[i].fall--;
+						poolBallen[i].collision = 2;
                         poolBallen[i].ball.position.y -= .1;
-                        if (poolBallen[i].fall == 0)
+
+                        if (poolBallen[i].ball.position.y <= -1)
                         {
+							poolBallen[i].fall = 0;
                             poolBallen[i].ball.visible = false;
+							if (i == 15){
+								resetWitteBal();
+							}
+
 						}
 					}
+
 
                 }
 
@@ -500,7 +548,7 @@
 			document.addEventListener( 'keyup', function (event) {
 
 				if(event.keyCode == 32 && controlsEnabled) {
-					poolBallen[15].balDirection = new THREE.Vector3(0, 0, -1.5);
+					poolBallen[15].balDirection = new THREE.Vector3(1, 0, -1.5);
 				}
 
 				else {
