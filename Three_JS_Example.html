@@ -607,36 +607,36 @@
 			document.addEventListener('keydown', onKeyDown);
 			document.addEventListener( 'keyup', onKeyUp);
 
-
+			var camSensetivity = 0.5;
 
 			function onKeyDown(){
 				if(event.keyCode == 37){ // left
 					if(camPos.z == 25 && camPos.x >= -15){
-						camPos.x--;
+						camPos.x -= camSensetivity;
 					}
 					if(camPos.x == -15 && camPos.z >= -25){
-						camPos.z--;
+						camPos.z -= camSensetivity;
 					}
 					if(camPos.z == -25 && x <= 15){
-						camPos.x++;
+						camPos.x += camSensetivity;
 					}
 					if(camPos.x == 15 && camPos.z <= 25){
-						camPos.z++;
+						camPos.z += camSensetivity;
 					}
 				}
 
 				if(event.keyCode == 39){ // right
 					if(camPos.z == 25 && camPos.x >= -15){
-						camPos.x++;
+						camPos.x += camSensetivity;
 					}
 					if(camPos.x == -15 && camPos.z >= -25){
-						camPos.z++;
+						camPos.z += camSensetivity;
 					}
 					if(camPos.z == -25 && x <= 15){
-						camPos.x--;
+						camPos.x -= camSensetivity;
 					}
 					if(camPos.x == 15 && camPos.z <= 25){
-						camPos.z--;
+						camPos.z -= camSensetivity;
 					}
 				}
 			}
@@ -659,14 +659,20 @@
 			}
 
 			document.addEventListener('mousewheel', function(event) {
-				if (event.wheelDelta < 0 ) {
-					if (camPos.y > 1) {
-						camPos.y--;
+                var difference = (camPos.x - witteBal.position.x) + (camPos.y - witteBal.position.y) + (camPos.z - witteBal.position.z);
+                console.log(difference);
+                console.log(camPos.y);
+			    if (event.wheelDelta < 0 ) {
+
+					if (difference > 1 && camPos.y > 1) {
+                        camPos.y--;
+                        camPos.z--;
 					}
 				}
 				else {
-					if(camPos.y < 15) {
-						camPos.y++;
+					if(difference < 25) {
+                        camPos.y++;
+                        camPos.z++;
 					}
 				}
 			});
