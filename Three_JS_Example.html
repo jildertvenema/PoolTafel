@@ -504,6 +504,12 @@
                         if (distance <= 1 && (poolBallen[x].collision == 0 || poolBallen[y].collision == 0)) {
                             poolBallen[x].collision = 1;
                             poolBallen[y].collision = 1;
+							var remainDistance = 1 - distance;
+							if (remainDistance > 0)
+							{
+								var direction = poolBallen[x].ball.position.clone().sub( poolBallen[y].ball.position ).normalize();
+								poolBallen[x].ball.position.add(direction.clone().multiplyScalar(remainDistance));
+							}
                             BounceMyBalls(poolBallen[x], poolBallen[y]);
                         }
                         else if (distance > 1) {
