@@ -35,8 +35,8 @@
 					this.collision = 0;
 					this.fall = 0;
 					this.randCollision = 0;
-				}
-			}
+				
+
 
 			var controlsEnabled = false;
 			var element = document.body;
@@ -398,6 +398,7 @@
 
 
 
+
             resetBalls();
 
 
@@ -407,7 +408,6 @@
 
 			function BounceMyBalls(ball, ball2)
 			{
-
 				var warmteEnergieRendement = 0.95;
 
 			    var mass = 1;
@@ -445,6 +445,7 @@
             // ############################################# render ###################################################
 			function render() {
 
+
 				var clockDelta = clock.getDelta() * 20;
 
                 var drag = 0.996;
@@ -458,9 +459,10 @@
                     //poolBallen[i].ball.position.add(poolBallen[i].balDirection);
                     poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection.multiplyScalar(drag)).multiplyScalar(clockDelta));
 
-					poolBallen[i].ball.rotateX(-poolBallen[i].balDirection.z / 0.5 * clockDelta );
-					poolBallen[i].ball.rotateZ(-poolBallen[i].balDirection.x / 0.5 * clockDelta);
-                    poolBallen[i].ball.rotateY(-poolBallen[i].balDirection.y / 0.5 * clockDelta);
+
+					poolBallen[i].ball.rotateX((poolBallen[i].balDirection.z / (0.5 * Math.PI)) * clockDelta) ;
+					poolBallen[i].ball.rotateZ(-(poolBallen[i].balDirection.x / (0.5 * Math.PI)) * clockDelta) ;
+                    poolBallen[i].ball.rotateY(-(poolBallen[i].balDirection.y / (0.5 * Math.PI)) * clockDelta) ;
                 }
 
 
@@ -487,22 +489,33 @@
                 renderer.render(scene, camera);
 
 
-                for (var x=0; x < poolBallen.length; x++)
-                {
-                    for (var y=x+1; y < poolBallen.length; y++)
-                    {
-                        var distance_x = Math.abs(poolBallen[x].ball.position.x-poolBallen[y].ball.position.x);
-                        var distance_y = Math.abs(poolBallen[x].ball.position.z-poolBallen[y].ball.position.z);
-                        var distance = Math.sqrt(distance_x*distance_x+distance_y*distance_y);
+                for (var x=0; x < poolBallen.length; x++) {
+                    for (var y = x + 1; y < poolBallen.length; y++) {
 
-                        if (distance <= 1 && (poolBallen[x].collision == 0 || poolBallen[y].collision == 0))
-                        {
+                    	if (poolBallen[i].collision == 2){continue;}
+
+                        var distance_x = Math.abs(poolBallen[x].ball.position.x - poolBallen[y].ball.position.x);
+                        var distance_y = Math.abs(poolBallen[x].ball.position.z - poolBallen[y].ball.position.z);
+                        var distance = Math.sqrt(distance_x * distance_x + distance_y * distance_y);
+
+                        if (distance <= 1 && (poolBallen[x].collision == 0 || poolBallen[y].collision == 0)) {
                             poolBallen[x].collision = 1;
                             poolBallen[y].collision = 1;
+
+							if (poolBallen[x].ball.position.y < 0 || poolBallen[y].ball.position.y < 0){
+								continue;
+							}
+
+							var remainDistance = 1 - distance;
+							if (remainDistance > 0)
+							{
+								var direction = poolBallen[x].ball.position.clone().sub( poolBallen[y].ball.position ).normalize();
+								poolBallen[x].ball.position.add(direction.clone().multiplyScalar(remainDistance));
+							}
+
                             BounceMyBalls(poolBallen[x], poolBallen[y]);
                         }
-                        else if (distance> 1)
-                        {
+                        else if (distance > 1) {
                             poolBallen[x].collision = 0;
                             poolBallen[y].collision = 0;
                         }
@@ -510,92 +523,82 @@
                 }
 
 
+                for (var i = 0; i < poolBallen.length; i ++) {
 
 
-				//randen
+                    var pos = poolBallen[i].ball.position;
 
-				var warmteEnergieRendement = 0.95;
+					var fallen = poolBallen[i].collision;
 
-				for (var i = 0; i < poolBallen.length; i++ ) {
-					if (poolBallen[i].ball.position.z < -19 || poolBallen[i].ball.position.z > 19)
-					{
-						if ((poolBallen[i].ball.position.x < -8 ||poolBallen[i].ball.position.x  > 8) &&  poolBallen[i].ball.position.y >= 0)
-						{
-							poolBallen[i].balDirection = new THREE.Vector3(0,0,0);
-							poolBallen[i].fall = 1;
-						}
-						else {
-						    if (poolBallen[i].randCollision == 0) {
-                                poolBallen[i].randCollision = 1;
-                                poolBallen[i].balDirection.z *= -1 * warmteEnergieRendement;
-                            }
-                            else if (poolBallen[i].ball.position.x >= -8 && poolBallen[i].ball.position.x <= 8 )
-							{
-                                poolBallen[i].randCollision = 0;
-							}
-						}
-					}
-					if (poolBallen[i].ball.position.x < -9 || poolBallen[i].ball.position.x > 9)
-					{
+					//up
+                    if (pos.z > 19 && fallen == 0) {
+                        pos.z = 19;
+                        poolBallen[i].balDirection.z *= -1;
+                    }
 
+                    //down
+                    if (pos.z < -19 && fallen == 0) {
+                        pos.z = -19;
+                        poolBallen[i].balDirection.z *= -1;
+                    }
 
-						if ((poolBallen[i].ball.position.z < -18 || poolBallen[i].ball.position.z  > 18) && poolBallen[i].ball.position.y >= 0)
-						{
-							poolBallen[i].balDirection = new THREE.Vector3(0,0,0);
-							poolBallen[i].fall = 1;
-						}
-						else{
-                            if (poolBallen[i].randCollision == 0) {
-                                poolBallen[i].randCollision = 1;
-                                poolBallen[i].balDirection.x *= -1 * warmteEnergieRendement;
-                            }
-                            else if (poolBallen[i].ball.position.y >= -18 && poolBallen[i].ball.position.z <= 18 )
-                            {
-                                poolBallen[i].randCollision = 0;
-                            }
-						}
-					}
+                    if (pos.x < -9 && fallen == 0) {
+                        pos.x = -9;
+                        poolBallen[i].balDirection.x *= -1;
+                    }
+
+                    if (pos.x > 9 && fallen == 0) {
+                        pos.x = 9;
+                        poolBallen[i].balDirection.x *= -1;
+                    }
 
 
 
-					//vallen van middelste gaten
-					if (poolBallen[i].ball.position.x < -7.85 || poolBallen[i].ball.position.x > 8.25) {
-
-						if ((poolBallen[i].ball.position.z < 1.5 && poolBallen[i].ball.position.z > -1.5 ) && poolBallen[i].ball.position.y == 0) {
-							poolBallen[i].ball.position.y -= .1;
-							poolBallen[i].balDirection = new THREE.Vector3(0, 0, 0);
-							poolBallen[i].fall = 1;
-							console.log("fall");
-							continue;
-						}
-					}
+                   if ((pos.z > 18 || pos.z < -18) && (pos.x > 8 || pos.x < -8)  && pos.y == 0){
+                        fallPoolball(poolBallen[i]);
+				   }
 
 
+                    //vallen van middelste gaten
+                    if (pos.x < -8 || pos.x > 8.25) {
+                        if ((pos.z < 1.5 && poolBallen[i].ball.position.z > -1.5 ) && pos.y == 0) {
+							fallPoolball(poolBallen[i]);
+                        }
+                    }
 
-                    if (poolBallen[i].fall > 0){
-						poolBallen[i].collision = 2;
-                        poolBallen[i].ball.position.y -= .1;
 
-                        if (poolBallen[i].ball.position.y <= -1)
-                        {
-							poolBallen[i].fall = 0;
+                    if (poolBallen[i].fall > 0) {
+                        pos.y -= .1;
+                        if (pos.y <= -1) {
+                            poolBallen[i].fall = 0;
                             poolBallen[i].ball.visible = false;
-							if (i == 15){
-								resetWitteBal();
-							}
+                            if (i == 15) {
+                                resetWitteBal();
+                            }
 
-						}
-					}
-
-
+                        }
+                    }
                 }
-
-
-
-
-
-
 			}
+
+
+
+			function  fallPoolball(ball) {
+				ball.balDirection = new THREE.Vector3(0,0,0);
+				ball.ball.position.y -= 0.1;
+				ball.collision = 2;
+				ball.fall = 1;
+			}
+
+			function resetWitteBal() {
+				poolBallen[15].ball.position.x = 0;
+				poolBallen[15].ball.position.z = 10;
+				poolBallen[15].ball.visible = true;
+				poolBallen[15].balDirection = new THREE.Vector3(0,0,0);
+				poolBallen[15].ball.position.y = 0;
+				poolBallen[15].collision = 0;
+			}
+
 
 
 			// ########################################## mouse events #################################################
@@ -640,7 +643,9 @@
 
 			function onKeyUp(){
 				if(event.keyCode == 32 && controlsEnabled) {
-					poolBallen[15].balDirection = new THREE.Vector3(.5, 0, -1);
+					var direction = camera.position.clone().sub( poolBallen[15].ball.position ).normalize();
+					poolBallen[15].balDirection.x = -direction.clone().multiplyScalar(1).x;
+					poolBallen[15].balDirection.z = -direction.clone().multiplyScalar(1).z;
 				}
 
 				else {
