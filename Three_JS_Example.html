@@ -409,12 +409,6 @@
 
 			function BounceMyBalls(ball, ball2)
 			{
-
-
-			    if (ball.ball.position.y < 0 || ball2.ball.position.y < 0){
-			        return;
-				}
-
 				var warmteEnergieRendement = 0.95;
 
 			    var mass = 1;
@@ -504,12 +498,19 @@
                         if (distance <= 1 && (poolBallen[x].collision == 0 || poolBallen[y].collision == 0)) {
                             poolBallen[x].collision = 1;
                             poolBallen[y].collision = 1;
+
+							if (poolBallen[x].ball.position.y < 0 || poolBallen[y].ball.position.y < 0){
+								return;
+							}
+
 							var remainDistance = 1 - distance;
 							if (remainDistance > 0)
 							{
+								console.log(remainDistance);
 								var direction = poolBallen[x].ball.position.clone().sub( poolBallen[y].ball.position ).normalize();
 								poolBallen[x].ball.position.add(direction.clone().multiplyScalar(remainDistance));
 							}
+
                             BounceMyBalls(poolBallen[x], poolBallen[y]);
                         }
                         else if (distance > 1) {
