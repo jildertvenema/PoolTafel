@@ -553,7 +553,7 @@
 
 
 					var dir = poolBallen[i].balDirection;
-					if (!(dir.x <= 0.01 && dir.z <= 0.01  && dir.x > -0.01  && dir.z > -0.01 )){
+					if (!(dir.x <= 0.01 && dir.z <= 0.01  && dir.x > -0.01  && dir.z > -0.01 ) && poolBallen[i].ball.position.y == 0){
 						stilleBallen = false;
 					}
 					if (i == 15 && stilleBallen == true && ballenLiggenStil == false){
