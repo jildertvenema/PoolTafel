@@ -19,14 +19,14 @@
 
 		<link href="shared/css/main.css" rel="stylesheet" type="text/css">
 		<script src="shared/js/three.js"></script>
-		<script src="shared/js/OrbitControls.js"></script>
+		<script src="shared/js/PointerLockControls.js"></script>
 
-		
+
 		<!--<script src="js/SpotLight.js"></script>
 		<script src="js/FirstPersonControls.js"></script>-->
 
 		<script>
-		
+
 			class PoolBal{
 				constructor(baldirection, ball)
 				{
@@ -34,12 +34,14 @@
 					this.ball = ball;
 					this.collision = 0;
 					this.fall = 0;
-				}				
-			}
+					this.randCollision = 0;
+				
+
 
 			var controlsEnabled = false;
 			var element = document.body;
 			var mouse = new THREE.Vector2();
+
 
 			function init()
 			{
@@ -53,12 +55,9 @@
 			var scene = new THREE.Scene();
 
 			var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-			camera.position.set(x = 0,y = 10,z = 25);
 
-
-			controls = new THREE.OrbitControls( camera );
-			controls.noRotate = true;
-			controls.addEventListener( 'change', render );
+			var camPos = camera.position;
+			camPos.set(x = 0,y = 10,z = 25);
 
 			var renderer = new THREE.WebGLRenderer();
 			renderer.setSize(window.innerWidth, window.innerHeight);
@@ -117,7 +116,7 @@
 
 
 
-		
+
 
             // ############################################## init #####################################################
 
@@ -385,7 +384,18 @@
 
 
             }
-            
+
+
+            function resetWitteBal() {
+				witteBal.position.z = 10;
+				witteBal.position.x = 0;
+				witteBal.position.y = 0;
+				poolBallen[15].ball.visible = true;
+				poolBallen[15].balDirection = new THREE.Vector3(0,0,0);
+				poolBallen[15].ball.position.y = 0;
+				poolBallen[15].collision = 0;
+			}
+
 
 
 
@@ -464,7 +474,7 @@
 
 
 				var StokPositie = new THREE.Vector3(0,0,0);
-				StokPositie.addVectors(witteBal.position, camera.position);
+				StokPositie.addVectors(witteBal.position, camPos);
 
 				StokPositie = StokPositie.multiplyScalar(0.5);
 
@@ -591,13 +601,47 @@
 
 
 
-
 			// ########################################## mouse events #################################################
 
 
+			document.addEventListener('keydown', onKeyDown);
+			document.addEventListener( 'keyup', onKeyUp);
 
-			document.addEventListener( 'keyup', function (event) {
 
+
+			function onKeyDown(){
+				if(event.keyCode == 37){ // left
+					if(camPos.z == 25 && camPos.x >= -15){
+						camPos.x--;
+					}
+					if(camPos.x == -15 && camPos.z >= -25){
+						camPos.z--;
+					}
+					if(camPos.z == -25 && x <= 15){
+						camPos.x++;
+					}
+					if(camPos.x == 15 && camPos.z <= 25){
+						camPos.z++;
+					}
+				}
+
+				if(event.keyCode == 39){ // right
+					if(camPos.z == 25 && camPos.x >= -15){
+						camPos.x++;
+					}
+					if(camPos.x == -15 && camPos.z >= -25){
+						camPos.z++;
+					}
+					if(camPos.z == -25 && x <= 15){
+						camPos.x--;
+					}
+					if(camPos.x == 15 && camPos.z <= 25){
+						camPos.z--;
+					}
+				}
+			}
+
+			function onKeyUp(){
 				if(event.keyCode == 32 && controlsEnabled) {
 					var direction = camera.position.clone().sub( poolBallen[15].ball.position ).normalize();
 					poolBallen[15].balDirection.x = -direction.clone().multiplyScalar(1).x;
@@ -612,8 +656,20 @@
 					element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
 					element.requestPointerLock();
 				}
+			}
 
-			}, false );
+			document.addEventListener('mousewheel', function(event) {
+				if (event.wheelDelta < 0 ) {
+					if (camPos.y > 1) {
+						camPos.y--;
+					}
+				}
+				else {
+					if(camPos.y < 15) {
+						camPos.y++;
+					}
+				}
+			});
 
 			init();
 		</script>
