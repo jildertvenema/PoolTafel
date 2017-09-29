@@ -450,8 +450,8 @@
                     poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection.multiplyScalar(drag)).multiplyScalar(clockDelta));
 
 
-					poolBallen[i].ball.rotateX(-(poolBallen[i].balDirection.x / (0.5 * Math.PI)) * clockDelta) ;
-					poolBallen[i].ball.rotateZ(-(poolBallen[i].balDirection.z / (0.5 * Math.PI)) * clockDelta) ;
+					poolBallen[i].ball.rotateX((poolBallen[i].balDirection.z / (0.5 * Math.PI)) * clockDelta) ;
+					poolBallen[i].ball.rotateZ(-(poolBallen[i].balDirection.x / (0.5 * Math.PI)) * clockDelta) ;
                     poolBallen[i].ball.rotateY(-(poolBallen[i].balDirection.y / (0.5 * Math.PI)) * clockDelta) ;
                 }
 
@@ -559,7 +559,6 @@
 
                     if (poolBallen[i].fall > 0) {
                         pos.y -= .1;
-						console.log(pos.y);
                         if (pos.y <= -1) {
                             poolBallen[i].fall = 0;
                             poolBallen[i].ball.visible = false;
@@ -588,7 +587,6 @@
 				poolBallen[15].balDirection = new THREE.Vector3(0,0,0);
 				poolBallen[15].ball.position.y = 0;
 				poolBallen[15].collision = 0;
-				console.log("Reset");
 			}
 
 
@@ -601,7 +599,7 @@
 			document.addEventListener( 'keyup', function (event) {
 
 				if(event.keyCode == 32 && controlsEnabled) {
-					poolBallen[15].balDirection = new THREE.Vector3(.5, 0, -1);
+					poolBallen[15].balDirection = new THREE.Vector3(-0.3, 0, 0);
 				}
 
 				else {
