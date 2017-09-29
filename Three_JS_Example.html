@@ -26,6 +26,19 @@
 		<script src="js/FirstPersonControls.js"></script>-->
 
 		<script>
+
+
+
+			var barSounds = new Audio('sound/bar.mp3');
+			var balSound = new Audio('sound/bal.mp3');
+			var fallSound = new Audio('sound/fall.mp3');
+			var queSound = new Audio('sound/hit.mp3');
+			var wallSound = new Audio('sound/wall.mp3');
+
+			balSound.volume = 1;
+			barSounds.volume = 0.1;
+			barSounds.loop = true;
+			barSounds.play();
 		
 			class PoolBal{
 				constructor(baldirection, ball)
@@ -400,6 +413,9 @@
 
 			function BounceMyBalls(ball, ball2)
 			{
+
+
+
 				var warmteEnergieRendement = 0.95;
 
 			    var mass = 1;
@@ -428,6 +444,11 @@
                 ball.balDirection.z = warmteEnergieRendement  * (Math.sin(collision_angle)*final_xspeed_1+Math.sin(collision_angle+Math.PI/2)*final_yspeed_1);
                 ball2.balDirection.x = warmteEnergieRendement * (Math.cos(collision_angle)*final_xspeed_2+Math.cos(collision_angle+Math.PI/2)*final_yspeed_2);
                 ball2.balDirection.z = warmteEnergieRendement * ( Math.sin(collision_angle)*final_xspeed_2+Math.sin(collision_angle+Math.PI/2)*final_yspeed_2);
+
+
+				balSound.play();
+
+
 
 
 			}
@@ -481,22 +502,11 @@
                 renderer.render(scene, camera);
 
 
-				var stilleBallen = true;
+
 
 
                 for (var x=0; x < poolBallen.length; x++) {
                     for (var y = x + 1; y < poolBallen.length; y++) {
-
-
-                    	var dir = poolBallen[i].balDirection;
-
-                    	if (!(dir.x <= 0.005 && dir.z <= 0.005  && dir.x > -0.005  && dir.z > -0.005 )){
-							stilleBallen = false;
-						}
-						if (i == 15 && stilleBallen == true && ballenLiggenStil == false){
-							ballenLiggenStil = true;
-						}
-
                     	if (poolBallen[i].collision == 2){continue;}
 
                         var distance_x = Math.abs(poolBallen[x].ball.position.x - poolBallen[y].ball.position.x);
@@ -528,10 +538,21 @@
                 }
 
 
+				var stilleBallen = true;
+
                 for (var i = 0; i < poolBallen.length; i ++) {
 
 
-                    var pos = poolBallen[i].ball.position;
+					var dir = poolBallen[i].balDirection;
+					if (!(dir.x <= 0.005 && dir.z <= 0.005  && dir.x > -0.005  && dir.z > -0.005 )){
+						stilleBallen = false;
+					}
+					if (i == 15 && stilleBallen == true && ballenLiggenStil == false){
+						ballenLiggenStil = true;
+					}
+
+
+					var pos = poolBallen[i].ball.position;
 
 					var fallen = poolBallen[i].collision;
 
@@ -539,22 +560,26 @@
                     if (pos.z > 19 && fallen == 0) {
                         pos.z = 19;
                         poolBallen[i].balDirection.z *= -1;
+						wallSound.play();
                     }
 
                     //down
                     if (pos.z < -19 && fallen == 0) {
                         pos.z = -19;
                         poolBallen[i].balDirection.z *= -1;
+						wallSound.play();
                     }
 
                     if (pos.x < -9 && fallen == 0) {
                         pos.x = -9;
                         poolBallen[i].balDirection.x *= -1;
+						wallSound.play();
                     }
 
                     if (pos.x > 9 && fallen == 0) {
                         pos.x = 9;
                         poolBallen[i].balDirection.x *= -1;
+						wallSound.play();
                     }
 
 
@@ -590,6 +615,8 @@
 
 			function  fallPoolball(ball) {
 
+				fallSound.play();
+
 				if (ball.balDirection.x > 0.5) { ball.balDirection.x = 0.5;}
 				if (ball.balDirection.x < -0.5) { ball.balDirection.x = -0.5;}
 				if (ball.balDirection.y > 0.5) { ball.balDirection.y = 0.5;}
@@ -619,6 +646,7 @@
 
 			document.addEventListener( 'keyup', function (event) {
 				if(event.keyCode == 32 && controlsEnabled && ballenLiggenStil) {
+					queSound.play();
 					ballenLiggenStil = false;
 					var direction = camera.position.clone().sub( poolBallen[15].ball.position ).normalize();
 					poolBallen[15].balDirection.x = -direction.clone().multiplyScalar(2).x;
