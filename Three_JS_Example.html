@@ -34,7 +34,6 @@
 					this.ball = ball;
 					this.collision = 0;
 					this.fall = 0;
-					this.randCollision = 0;
 				}				
 			}
 
@@ -387,17 +386,7 @@
 
             }
             
-            
-            function resetWitteBal() {
-				witteBal.position.z = 10;
-				witteBal.position.x = 0;
-				witteBal.position.y = 0;
-				poolBallen[15].ball.visible = true;
-				poolBallen[15].balDirection = new THREE.Vector3(0,0,0);
-				poolBallen[15].ball.position.y = 0;
-				poolBallen[15].collision = 0;
-			}
-            
+
 
 
             resetBalls();
@@ -446,6 +435,7 @@
             // ############################################# render ###################################################
 			function render() {
 
+
 				var clockDelta = clock.getDelta() * 20;
 
                 var drag = 0.996;
@@ -460,9 +450,9 @@
                     poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection.multiplyScalar(drag)).multiplyScalar(clockDelta));
 
 
-					poolBallen[i].ball.rotateX((poolBallen[i].balDirection.x / 0.5) * clockDelta) ;
-					poolBallen[i].ball.rotateZ((poolBallen[i].balDirection.z / 0.5) * clockDelta) ;
-                    poolBallen[i].ball.rotateY((poolBallen[i].balDirection.y / 0.5) * clockDelta) ;
+					poolBallen[i].ball.rotateX(-(poolBallen[i].balDirection.x / (0.5 * Math.PI)) * clockDelta) ;
+					poolBallen[i].ball.rotateZ(-(poolBallen[i].balDirection.z / (0.5 * Math.PI)) * clockDelta) ;
+                    poolBallen[i].ball.rotateY(-(poolBallen[i].balDirection.y / (0.5 * Math.PI)) * clockDelta) ;
                 }
 
 
@@ -491,6 +481,9 @@
 
                 for (var x=0; x < poolBallen.length; x++) {
                     for (var y = x + 1; y < poolBallen.length; y++) {
+
+                    	if (poolBallen[i].collision == 2){continue;}
+
                         var distance_x = Math.abs(poolBallen[x].ball.position.x - poolBallen[y].ball.position.x);
                         var distance_y = Math.abs(poolBallen[x].ball.position.z - poolBallen[y].ball.position.z);
                         var distance = Math.sqrt(distance_x * distance_x + distance_y * distance_y);
@@ -500,13 +493,12 @@
                             poolBallen[y].collision = 1;
 
 							if (poolBallen[x].ball.position.y < 0 || poolBallen[y].ball.position.y < 0){
-								return;
+								continue;
 							}
 
 							var remainDistance = 1 - distance;
 							if (remainDistance > 0)
 							{
-								console.log(remainDistance);
 								var direction = poolBallen[x].ball.position.clone().sub( poolBallen[y].ball.position ).normalize();
 								poolBallen[x].ball.position.add(direction.clone().multiplyScalar(remainDistance));
 							}
@@ -526,24 +518,26 @@
 
                     var pos = poolBallen[i].ball.position;
 
-                    //up
-                    if (pos.z > 19) {
+					var fallen = poolBallen[i].collision;
+
+					//up
+                    if (pos.z > 19 && fallen == 0) {
                         pos.z = 19;
                         poolBallen[i].balDirection.z *= -1;
                     }
 
                     //down
-                    if (pos.z < -19) {
+                    if (pos.z < -19 && fallen == 0) {
                         pos.z = -19;
                         poolBallen[i].balDirection.z *= -1;
                     }
 
-                    if (pos.x < -9) {
+                    if (pos.x < -9 && fallen == 0) {
                         pos.x = -9;
                         poolBallen[i].balDirection.x *= -1;
                     }
 
-                    if (pos.x > 9) {
+                    if (pos.x > 9 && fallen == 0) {
                         pos.x = 9;
                         poolBallen[i].balDirection.x *= -1;
                     }
@@ -551,31 +545,21 @@
 
 
                    if ((pos.z > 18 || pos.z < -18) && (pos.x > 8 || pos.x < -8)  && pos.y == 0){
-                        pos.y -= .1;
-                        poolBallen[i].balDirection = new THREE.Vector3(0, 0, 0);
-                        poolBallen[i].fall = 1;
-                        console.log("fall");
-                        continue;
-                    }
+                        fallPoolball(poolBallen[i]);
+				   }
 
 
                     //vallen van middelste gaten
-                    if (pos.x < -7.85 || pos.x > 8.25) {
-
+                    if (pos.x < -8 || pos.x > 8.25) {
                         if ((pos.z < 1.5 && poolBallen[i].ball.position.z > -1.5 ) && pos.y == 0) {
-                            pos.y -= .1;
-                            poolBallen[i].balDirection = new THREE.Vector3(0, 0, 0);
-                            poolBallen[i].fall = 1;
-                            console.log("fall");
-                            continue;
+							fallPoolball(poolBallen[i]);
                         }
                     }
 
 
                     if (poolBallen[i].fall > 0) {
-                        poolBallen[i].collision = 2;
                         pos.y -= .1;
-
+						console.log(pos.y);
                         if (pos.y <= -1) {
                             poolBallen[i].fall = 0;
                             poolBallen[i].ball.visible = false;
@@ -585,18 +569,31 @@
 
                         }
                     }
-
                 }
-
-
-
-
-
-
-
 			}
-			
-			
+
+
+
+			function  fallPoolball(ball) {
+				ball.balDirection = new THREE.Vector3(0,0,0);
+				ball.ball.position.y -= 0.1;
+				ball.collision = 2;
+				ball.fall = 1;
+			}
+
+			function resetWitteBal() {
+				poolBallen[15].ball.position.x = 0;
+				poolBallen[15].ball.position.z = 10;
+				poolBallen[15].ball.visible = true;
+				poolBallen[15].balDirection = new THREE.Vector3(0,0,0);
+				poolBallen[15].ball.position.y = 0;
+				poolBallen[15].collision = 0;
+				console.log("Reset");
+			}
+
+
+
+
 			// ########################################## mouse events #################################################
 
 
