@@ -19,7 +19,7 @@
 
 		<link href="shared/css/main.css" rel="stylesheet" type="text/css">
 		<script src="shared/js/three.js"></script>
-		<script src="shared/js/OrbitControls.js"></script>
+		<script src="shared/js/PointerLockControls.js"></script>
 
 		
 		<!--<script src="js/SpotLight.js"></script>
@@ -54,6 +54,7 @@
 			var element = document.body;
 			var mouse = new THREE.Vector2();
 
+
 			function init()
 			{
 
@@ -66,12 +67,9 @@
 			var scene = new THREE.Scene();
 
 			var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-			camera.position.set(x = 0,y = 10,z = 25);
 
-
-			controls = new THREE.OrbitControls( camera );
-			controls.noRotate = true;
-			controls.addEventListener( 'change', render );
+			var camPos = camera.position;
+			camPos.set(x = 0,y = 10,z = 25);
 
 			var renderer = new THREE.WebGLRenderer();
 			renderer.setSize(window.innerWidth, window.innerHeight);
@@ -130,27 +128,27 @@
 
 
 
-		
-
-            // ############################################## init #####################################################
 
 
+			// ############################################## init #####################################################
 
-            //var groundTexture = new THREE.TextureLoader().load('img/front.jpg');
 
-            //var floorMat = new THREE.MeshPhongMaterial( { map: groundTexture  } );
 
-            var floor = new THREE.Mesh( new THREE.BoxBufferGeometry(200,200,1,1), betonMaterial);
-            floor.position.y = -15;
-            floor.rotation.x = - Math.PI / 2;
-            floor.receiveShadow = true;
-            scene.add(floor);
+			//var groundTexture = new THREE.TextureLoader().load('img/front.jpg');
+
+			//var floorMat = new THREE.MeshPhongMaterial( { map: groundTexture  } );
+
+			var floor = new THREE.Mesh( new THREE.PlaneBufferGeometry(200,200,1,1), betonMaterial);
+			floor.position.y = -15;
+			floor.rotation.x = - Math.PI / 2;
+			floor.receiveShadow = true;
+			scene.add(floor);
 
 			var raycaster = new THREE.Raycaster();
 
 
 			var poolBallen = [];
-            var alleBallen = [];
+			var alleBallen = [];
 
 
 			var ballenLiggenStil = true;
@@ -171,83 +169,83 @@
 			light1.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } )));
 			light1.position.set(10, 40, 0);
 			light1.castShadow = true;
-            light1.shadowDarkness = 0.5;
+			light1.shadowDarkness = 0.5;
 
 			scene.add(light1);
 
 
-            wallMaterial = new THREE.MeshBasicMaterial({
-                color: 0xf5f0ff
+			wallMaterial = new THREE.MeshBasicMaterial({
+				color: 0xf5f0ff
 
-            });
+			});
 			var wall = new THREE.Mesh( new THREE.PlaneBufferGeometry(370,200,1,1), wallMaterial);
-            wall.position.z = -200;
+			wall.position.z = -200;
 			scene.add(wall);
 
 
-            // ############################################ pooltafel ##################################################
-            var poolTafel = new THREE.Group();
+			// ############################################ pooltafel ##################################################
+			var poolTafel = new THREE.Group();
 
 
 
-            var tafelKleedMat = new THREE.MeshPhongMaterial({color: 0x228B22});
+			var tafelKleedMat = new THREE.MeshPhongMaterial({color: 0x228B22});
 
-            var tafelKleed = new THREE.Mesh(new THREE.BoxGeometry(20, 40, 1), tafelKleedMat);
-            tafelKleed.position.y = -1;
-            tafelKleed.rotation.x = -Math.PI / 2;
+			var tafelKleed = new THREE.Mesh(new THREE.BoxGeometry(20, 40, 1), tafelKleedMat);
+			tafelKleed.position.y = -1;
+			tafelKleed.rotation.x = -Math.PI / 2;
 
-            poolTafel.add(tafelKleed);
+			poolTafel.add(tafelKleed);
 
-            var xRandGeo = new THREE.BoxGeometry(1, 1, 40);
-            var zRandGeo = new THREE.BoxGeometry(21, 1, 1);
-            var tafelPootGeo = new THREE.BoxGeometry(1, 40, 1);
+			var xRandGeo = new THREE.BoxGeometry(1, 1, 40);
+			var zRandGeo = new THREE.BoxGeometry(21, 1, 1);
+			var tafelPootGeo = new THREE.BoxGeometry(1, 40, 1);
 
-            var randMat = new THREE.MeshPhongMaterial({
-                    //color: 0x8B4513
-                    map: wood
-                }
-				);
-            var rand0 = new THREE.Mesh(xRandGeo, randMat);
-            var rand1 = new THREE.Mesh(xRandGeo, randMat);
-            var rand2 = new THREE.Mesh(zRandGeo, randMat);
-            var rand3 = new THREE.Mesh(zRandGeo, randMat);
+			var randMat = new THREE.MeshPhongMaterial({
+						//color: 0x8B4513
+						map: wood
+					}
+			);
+			var rand0 = new THREE.Mesh(xRandGeo, randMat);
+			var rand1 = new THREE.Mesh(xRandGeo, randMat);
+			var rand2 = new THREE.Mesh(zRandGeo, randMat);
+			var rand3 = new THREE.Mesh(zRandGeo, randMat);
 
-            var zranden = new THREE.Group();
-            zranden.add(rand2);
-            zranden.add(rand3);
+			var zranden = new THREE.Group();
+			zranden.add(rand2);
+			zranden.add(rand3);
 
-            var xranden = new THREE.Group();
-            xranden.add(rand0);
-            xranden.add(rand1);
+			var xranden = new THREE.Group();
+			xranden.add(rand0);
+			xranden.add(rand1);
 
-            poolTafel.add(zranden);
-            poolTafel.add(xranden);
+			poolTafel.add(zranden);
+			poolTafel.add(xranden);
 
-            rand0.position.set(-10, 0, 0);
-            rand1.position.set(10, 0, 0);
-            rand2.position.set(0, 0, -20);
-            rand3.position.set(0, 0, 20);
+			rand0.position.set(-10, 0, 0);
+			rand1.position.set(10, 0, 0);
+			rand2.position.set(0, 0, -20);
+			rand3.position.set(0, 0, 20);
 
-            var tafelPoten = new THREE.Group();
+			var tafelPoten = new THREE.Group();
 
-            tafelPoot1 = new THREE.Mesh(tafelPootGeo, randMat);
-            tafelPoot2 = new THREE.Mesh(tafelPootGeo, randMat);
-            tafelPoot3 = new THREE.Mesh(tafelPootGeo, randMat);
-            tafelPoot4 = new THREE.Mesh(tafelPootGeo, randMat);
+			tafelPoot1 = new THREE.Mesh(tafelPootGeo, randMat);
+			tafelPoot2 = new THREE.Mesh(tafelPootGeo, randMat);
+			tafelPoot3 = new THREE.Mesh(tafelPootGeo, randMat);
+			tafelPoot4 = new THREE.Mesh(tafelPootGeo, randMat);
 
-            tafelPoten.add(tafelPoot1, tafelPoot2, tafelPoot3, tafelPoot4);
+			tafelPoten.add(tafelPoot1, tafelPoot2, tafelPoot3, tafelPoot4);
 
-            tafelPoot1.position.set(-10, -20, 20);
-            tafelPoot2.position.set(10, -20, 20);
-            tafelPoot3.position.set(10, -20, -20);
-            tafelPoot4.position.set(-10, -20, -20);
+			tafelPoot1.position.set(-10, -20, 20);
+			tafelPoot2.position.set(10, -20, 20);
+			tafelPoot3.position.set(10, -20, -20);
+			tafelPoot4.position.set(-10, -20, -20);
 
-            poolTafel.add(tafelPoten);
+			poolTafel.add(tafelPoten);
 
-            poolTafel.castShadow = true;
-            poolTafel.receiveShadow = false;
+			poolTafel.castShadow = true;
+			poolTafel.receiveShadow = false;
 
-            tafelKleedcastShadow = true;
+			tafelKleedcastShadow = true;
 
 
 
@@ -292,53 +290,53 @@
 
 			scene.add( stokje );
 
-            scene.add(poolTafel);
+			scene.add(poolTafel);
 
 
-            // ############################################# balls #####################################################
-            var ballen = new THREE.Group();
-            var witteBal = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0xFFFFFF}));
+			// ############################################# balls #####################################################
+			var ballen = new THREE.Group();
+			var witteBal = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0xFFFFFF}));
 
-            for (var i = 1; i < 16; i++) {
-            	/*
-                if (i % 2 == 0) {
-                    var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0xff0040}));
-                }
-                else {
-                    if (i == 11) {
-                        var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0x00000}));
-                    }
-                    else {
-                        var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0x0040ff}));
-                    }
-                }
-			*/
+			for (var i = 1; i < 16; i++) {
+				/*
+				 if (i % 2 == 0) {
+				 var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0xff0040}));
+				 }
+				 else {
+				 if (i == 11) {
+				 var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0x00000}));
+				 }
+				 else {
+				 var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0x0040ff}));
+				 }
+				 }
+				 */
 
 				var ballTexture = new THREE.TextureLoader().load('balls/' + i + "ball.png");
 				var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({map: ballTexture}));
 
-                ballen.add(Poolball);
-            }
+				ballen.add(Poolball);
+			}
 
 
 			//ballen array
 			for (var i = 0 ; i < ballen.children.length; i ++){
 
-                ballen.children[i].name = "bal" + i;
-			var bal = new PoolBal(new THREE.Vector3(0,0,0), ballen.children[i]);
+				ballen.children[i].name = "bal" + i;
+				var bal = new PoolBal(new THREE.Vector3(0,0,0), ballen.children[i]);
 				bal.name = "poolbal" + i;
 				poolBallen.push(bal);
 				alleBallen.push(ballen.children[i]);
 			}
 
 			witteBal.name = "bal" + 15;
-            alleBallen.push(witteBal);
+			alleBallen.push(witteBal);
 
 
 
 
-            var wittePoolBal = new PoolBal(new THREE.Vector3(0, 0, 0), witteBal);
-            wittePoolBal.name = "poolbal" + 15;
+			var wittePoolBal = new PoolBal(new THREE.Vector3(0, 0, 0), witteBal);
+			wittePoolBal.name = "poolbal" + 15;
 			poolBallen.push(wittePoolBal);
 
 
@@ -355,56 +353,67 @@
 
 
 
-           // ballen.position.z = 1;
-            //ballen.position.x = -5;
+			// ballen.position.z = 1;
+			//ballen.position.x = -5;
 			function resetBalls() {
 
 
-                for (var i = 0 ; i < poolBallen.length; i ++){
-                    poolBallen[i].ball.visible = true;
-                    poolBallen[i].balDirection = new THREE.Vector3(0,0,0);
-                    poolBallen[i].ball.position.y = 0;
+				for (var i = 0 ; i < poolBallen.length; i ++){
+					poolBallen[i].ball.visible = true;
+					poolBallen[i].balDirection = new THREE.Vector3(0,0,0);
+					poolBallen[i].ball.position.y = 0;
 					poolBallen[i].collision = 0;
-                }
+				}
 
 
-                scene.add(ballen);
-                scene.add(witteBal);
-
-
-
-
-                witteBal.position.z = 10;
-                witteBal.position.x = 0;
-
-                for (var i = 0; i < ballen.children.length; i++) {
-                    ballen.children[i].position.z = -5;
-                    ballen.children[i].position.x = (i * 1.2) - 2;
-                    if (i >= 5) {
-                        ballen.children[i].position.x = ((i - 4.5) * 1.2) - 2;
-                        ballen.children[i].position.z = -4;
-                    }
-                    if (i >= 9) {
-                        ballen.children[i].position.x = ((i - 8) * 1.2) - 2;
-                        ballen.children[i].position.z = -3;
-                    }
-                    if (i >= 12) {
-                        ballen.children[i].position.x = ((i - 10.5) * 1.2) - 2;
-                        ballen.children[i].position.z = -2;
-                    }
-                    if (i >= 14) {
-                        ballen.children[i].position.x = ((i - 12) * 1.2) - 2;
-                        ballen.children[i].position.z = -1;
-                    }
-                }
-
-
-            }
-            
+				scene.add(ballen);
+				scene.add(witteBal);
 
 
 
-            resetBalls();
+
+				witteBal.position.z = 10;
+				witteBal.position.x = 0;
+
+				for (var i = 0; i < ballen.children.length; i++) {
+					ballen.children[i].position.z = -5;
+					ballen.children[i].position.x = (i * 1.2) - 2;
+					if (i >= 5) {
+						ballen.children[i].position.x = ((i - 4.5) * 1.2) - 2;
+						ballen.children[i].position.z = -4;
+					}
+					if (i >= 9) {
+						ballen.children[i].position.x = ((i - 8) * 1.2) - 2;
+						ballen.children[i].position.z = -3;
+					}
+					if (i >= 12) {
+						ballen.children[i].position.x = ((i - 10.5) * 1.2) - 2;
+						ballen.children[i].position.z = -2;
+					}
+					if (i >= 14) {
+						ballen.children[i].position.x = ((i - 12) * 1.2) - 2;
+						ballen.children[i].position.z = -1;
+					}
+				}
+
+
+			}
+
+
+			function resetWitteBal() {
+				witteBal.position.z = 10;
+				witteBal.position.x = 0;
+				witteBal.position.y = 0;
+				poolBallen[15].ball.visible = true;
+				poolBallen[15].balDirection = new THREE.Vector3(0,0,0);
+				poolBallen[15].ball.position.y = 0;
+				poolBallen[15].collision = 0;
+			}
+
+
+
+
+			resetBalls();
 
 
 
@@ -418,32 +427,32 @@
 
 				var warmteEnergieRendement = 0.95;
 
-			    var mass = 1;
+				var mass = 1;
 
 				var dx = ball.ball.position.x - ball2.ball.position.x;
-                var dy = ball.ball.position.z - ball2.ball.position.z;
+				var dy = ball.ball.position.z - ball2.ball.position.z;
 
-                var collision_angle = Math.atan2(dy, dx);
-                var magnitude_1 = Math.sqrt(ball.balDirection.x * ball.balDirection.x + ball.balDirection.z * ball.balDirection.z  )
-                var magnitude_2 = Math.sqrt(ball2.balDirection.x * ball2.balDirection.x + ball2.balDirection.z * ball2.balDirection.z  )
+				var collision_angle = Math.atan2(dy, dx);
+				var magnitude_1 = Math.sqrt(ball.balDirection.x * ball.balDirection.x + ball.balDirection.z * ball.balDirection.z  )
+				var magnitude_2 = Math.sqrt(ball2.balDirection.x * ball2.balDirection.x + ball2.balDirection.z * ball2.balDirection.z  )
 
 				var direction_1 = Math.atan2( ball.balDirection.z, ball.balDirection.x);
-                var direction_2 = Math.atan2( ball2.balDirection.z, ball2.balDirection.x);
+				var direction_2 = Math.atan2( ball2.balDirection.z, ball2.balDirection.x);
 
 				var new_xspeed_1 = magnitude_1 * Math.cos(direction_1 - collision_angle);
-                var new_yspeed_1 = magnitude_1 * Math.sin(direction_1 - collision_angle);
-                var new_xspeed_2 = magnitude_2 * Math.cos(direction_2 - collision_angle);
-                var new_yspeed_2 = magnitude_2 * Math.sin(direction_2 - collision_angle);
+				var new_yspeed_1 = magnitude_1 * Math.sin(direction_1 - collision_angle);
+				var new_xspeed_2 = magnitude_2 * Math.cos(direction_2 - collision_angle);
+				var new_yspeed_2 = magnitude_2 * Math.sin(direction_2 - collision_angle);
 
-                var final_xspeed_1 = ((mass-mass)*new_xspeed_1+(mass+mass)*new_xspeed_2)/(mass+mass);
-                var final_xspeed_2 = ((mass+mass)*new_xspeed_1+(mass-mass)*new_xspeed_2)/(mass+mass);
-                var final_yspeed_1 = new_yspeed_1;
-                var final_yspeed_2 = new_yspeed_2;
+				var final_xspeed_1 = ((mass-mass)*new_xspeed_1+(mass+mass)*new_xspeed_2)/(mass+mass);
+				var final_xspeed_2 = ((mass+mass)*new_xspeed_1+(mass-mass)*new_xspeed_2)/(mass+mass);
+				var final_yspeed_1 = new_yspeed_1;
+				var final_yspeed_2 = new_yspeed_2;
 
-                ball.balDirection.x = warmteEnergieRendement * (Math.cos(collision_angle)*final_xspeed_1+Math.cos(collision_angle+Math.PI/2)*final_yspeed_1);
-                ball.balDirection.z = warmteEnergieRendement  * (Math.sin(collision_angle)*final_xspeed_1+Math.sin(collision_angle+Math.PI/2)*final_yspeed_1);
-                ball2.balDirection.x = warmteEnergieRendement * (Math.cos(collision_angle)*final_xspeed_2+Math.cos(collision_angle+Math.PI/2)*final_yspeed_2);
-                ball2.balDirection.z = warmteEnergieRendement * ( Math.sin(collision_angle)*final_xspeed_2+Math.sin(collision_angle+Math.PI/2)*final_yspeed_2);
+				ball.balDirection.x = warmteEnergieRendement * (Math.cos(collision_angle)*final_xspeed_1+Math.cos(collision_angle+Math.PI/2)*final_yspeed_1);
+				ball.balDirection.z = warmteEnergieRendement  * (Math.sin(collision_angle)*final_xspeed_1+Math.sin(collision_angle+Math.PI/2)*final_yspeed_1);
+				ball2.balDirection.x = warmteEnergieRendement * (Math.cos(collision_angle)*final_xspeed_2+Math.cos(collision_angle+Math.PI/2)*final_yspeed_2);
+				ball2.balDirection.z = warmteEnergieRendement * ( Math.sin(collision_angle)*final_xspeed_2+Math.sin(collision_angle+Math.PI/2)*final_yspeed_2);
 
 
 				balSound.play();
@@ -455,39 +464,39 @@
 
 
 
-            // ############################################# render ###################################################
+			// ############################################# render ###################################################
 			function render() {
 
 
 				var clockDelta = clock.getDelta() * 20;
 
-                var drag = 0.996;
+				var drag = 0.996;
 
 				poolBallen[15].balDirection.y = 0;
 				witteBal.position.add(speed.copy(poolBallen[15].balDirection.multiplyScalar(drag)).multiplyScalar(clockDelta));
 				//poolBallen[15].ball.position.add(poolBallen[15].balDirection);
 
-                for (var i = 0; i < ballen.children.length; i++) {
-                    poolBallen[i].balDirection.y = 0;
-                    //poolBallen[i].ball.position.add(poolBallen[i].balDirection);
-                    poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection.multiplyScalar(drag)).multiplyScalar(clockDelta));
+				for (var i = 0; i < ballen.children.length; i++) {
+					poolBallen[i].balDirection.y = 0;
+					//poolBallen[i].ball.position.add(poolBallen[i].balDirection);
+					poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection.multiplyScalar(drag)).multiplyScalar(clockDelta));
 
 
 					poolBallen[i].ball.rotateX((poolBallen[i].balDirection.z / (0.5 * Math.PI)) * clockDelta) ;
 					poolBallen[i].ball.rotateZ(-(poolBallen[i].balDirection.x / (0.5 * Math.PI)) * clockDelta) ;
-                    poolBallen[i].ball.rotateY(-(poolBallen[i].balDirection.y / (0.5 * Math.PI)) * clockDelta) ;
-                }
+					poolBallen[i].ball.rotateY(-(poolBallen[i].balDirection.y / (0.5 * Math.PI)) * clockDelta) ;
+				}
 
 
-                renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.setSize(window.innerWidth, window.innerHeight);
 
 
-                camera.lookAt(witteBal.position);
+				camera.lookAt(witteBal.position);
 
 
 
 				var StokPositie = new THREE.Vector3(0,0,0);
-				StokPositie.addVectors(witteBal.position, camera.position);
+				StokPositie.addVectors(witteBal.position, camPos);
 
 				StokPositie = StokPositie.multiplyScalar(0.5);
 
@@ -497,9 +506,9 @@
 				stokje.rotation.z = -camera.rotation.z;
 
 
-                requestAnimationFrame(render);
-                raycaster.setFromCamera(mouse, camera);
-                renderer.render(scene, camera);
+				requestAnimationFrame(render);
+				raycaster.setFromCamera(mouse, camera);
+				renderer.render(scene, camera);
 
 
 
@@ -509,13 +518,13 @@
                     for (var y = x + 1; y < poolBallen.length; y++) {
                     	if (poolBallen[i].collision == 2){continue;}
 
-                        var distance_x = Math.abs(poolBallen[x].ball.position.x - poolBallen[y].ball.position.x);
-                        var distance_y = Math.abs(poolBallen[x].ball.position.z - poolBallen[y].ball.position.z);
-                        var distance = Math.sqrt(distance_x * distance_x + distance_y * distance_y);
+						var distance_x = Math.abs(poolBallen[x].ball.position.x - poolBallen[y].ball.position.x);
+						var distance_y = Math.abs(poolBallen[x].ball.position.z - poolBallen[y].ball.position.z);
+						var distance = Math.sqrt(distance_x * distance_x + distance_y * distance_y);
 
-                        if (distance <= 1 && (poolBallen[x].collision == 0 || poolBallen[y].collision == 0)) {
-                            poolBallen[x].collision = 1;
-                            poolBallen[y].collision = 1;
+						if (distance <= 1 && (poolBallen[x].collision == 0 || poolBallen[y].collision == 0)) {
+							poolBallen[x].collision = 1;
+							poolBallen[y].collision = 1;
 
 							if (poolBallen[x].ball.position.y < 0 || poolBallen[y].ball.position.y < 0){
 								continue;
@@ -528,14 +537,14 @@
 								poolBallen[x].ball.position.add(direction.clone().multiplyScalar(remainDistance));
 							}
 
-                            BounceMyBalls(poolBallen[x], poolBallen[y]);
-                        }
-                        else if (distance > 1) {
-                            poolBallen[x].collision = 0;
-                            poolBallen[y].collision = 0;
-                        }
-                    }
-                }
+							BounceMyBalls(poolBallen[x], poolBallen[y]);
+						}
+						else if (distance > 1) {
+							poolBallen[x].collision = 0;
+							poolBallen[y].collision = 0;
+						}
+					}
+				}
 
 
 				var stilleBallen = true;
@@ -550,7 +559,6 @@
 					if (i == 15 && stilleBallen == true && ballenLiggenStil == false){
 						ballenLiggenStil = true;
 					}
-
 
 					var pos = poolBallen[i].ball.position;
 
@@ -584,31 +592,31 @@
 
 
 
-                   if ((pos.z > 18 || pos.z < -18) && (pos.x > 8 || pos.x < -8)  && pos.y == 0){
-                        fallPoolball(poolBallen[i]);
-				   }
+					if ((pos.z > 18 || pos.z < -18) && (pos.x > 8 || pos.x < -8)  && pos.y == 0){
+						fallPoolball(poolBallen[i]);
+					}
 
 
-                    //vallen van middelste gaten
-                    if (pos.x < -8 || pos.x > 8.25) {
-                        if ((pos.z < 1.5 && poolBallen[i].ball.position.z > -1.5 ) && pos.y == 0) {
+					//vallen van middelste gaten
+					if (pos.x < -8 || pos.x > 8.25) {
+						if ((pos.z < 1.5 && poolBallen[i].ball.position.z > -1.5 ) && pos.y == 0) {
 							fallPoolball(poolBallen[i]);
-                        }
-                    }
+						}
+					}
 
 
-                    if (poolBallen[i].fall > 0) {
-                        pos.y -= .1;
-                        if (pos.y <= -1) {
-                            poolBallen[i].fall = 0;
-                            poolBallen[i].ball.visible = false;
-                            if (i == 15) {
-                                resetWitteBal();
-                            }
+					if (poolBallen[i].fall > 0) {
+						pos.y -= .1;
+						if (pos.y <= -1) {
+							poolBallen[i].fall = 0;
+							poolBallen[i].ball.visible = false;
+							if (i == 15) {
+								resetWitteBal();
+							}
 
-                        }
-                    }
-                }
+						}
+					}
+				}
 			}
 
 
@@ -639,12 +647,47 @@
 
 
 
-
 			// ########################################## mouse events #################################################
 
 
+			document.addEventListener('keydown', onKeyDown);
+			document.addEventListener( 'keyup', onKeyUp);
 
-			document.addEventListener( 'keyup', function (event) {
+
+
+			function onKeyDown(){
+				if(event.keyCode == 37){ // left
+					if(camPos.z == 25 && camPos.x >= -15){
+						camPos.x--;
+					}
+					if(camPos.x == -15 && camPos.z >= -25){
+						camPos.z--;
+					}
+					if(camPos.z == -25 && x <= 15){
+						camPos.x++;
+					}
+					if(camPos.x == 15 && camPos.z <= 25){
+						camPos.z++;
+					}
+				}
+
+				if(event.keyCode == 39){ // right
+					if(camPos.z == 25 && camPos.x >= -15){
+						camPos.x++;
+					}
+					if(camPos.x == -15 && camPos.z >= -25){
+						camPos.z++;
+					}
+					if(camPos.z == -25 && x <= 15){
+						camPos.x--;
+					}
+					if(camPos.x == 15 && camPos.z <= 25){
+						camPos.z--;
+					}
+				}
+			}
+
+			function onKeyUp(){
 				if(event.keyCode == 32 && controlsEnabled && ballenLiggenStil) {
 					queSound.play();
 					ballenLiggenStil = false;
@@ -654,17 +697,29 @@
 				}
 
 				else {
-				    console.log("pointer lock");
+					console.log("pointer lock");
 					instructions.style.display = 'none';
 					blocker.style.display = 'none';
 					// Ask the browser to lock the pointer
 					element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
 					element.requestPointerLock();
 				}
+			}
 
-			}, false );
+			document.addEventListener('mousewheel', function(event) {
+				if (event.wheelDelta < 0 ) {
+					if (camPos.y > 1) {
+						camPos.y--;
+					}
+				}
+				else {
+					if(camPos.y < 15) {
+						camPos.y++;
+					}
+				}
+			});
 
 			init();
-		</script>
-	</body>
+</script>
+</body>
 </html>
