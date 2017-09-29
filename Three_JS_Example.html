@@ -599,7 +599,9 @@
 			document.addEventListener( 'keyup', function (event) {
 
 				if(event.keyCode == 32 && controlsEnabled) {
-					poolBallen[15].balDirection = new THREE.Vector3(-0.3, 0, 0);
+					var direction = camera.position.clone().sub( poolBallen[15].ball.position ).normalize();
+					poolBallen[15].balDirection.x = -direction.clone().multiplyScalar(1).x;
+					poolBallen[15].balDirection.z = -direction.clone().multiplyScalar(1).z;
 				}
 
 				else {
