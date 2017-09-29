@@ -127,7 +127,7 @@
 
             //var floorMat = new THREE.MeshPhongMaterial( { map: groundTexture  } );
 
-            var floor = new THREE.Mesh( new THREE.PlaneBufferGeometry(200,200,1,1), betonMaterial);
+            var floor = new THREE.Mesh( new THREE.BoxBufferGeometry(200,200,1,1), betonMaterial);
             floor.position.y = -15;
             floor.rotation.x = - Math.PI / 2;
             floor.receiveShadow = true;
@@ -139,6 +139,8 @@
 			var poolBallen = [];
             var alleBallen = [];
 
+
+			var ballenLiggenStil = true;
 
 			var speed = new THREE.Vector3();
 
@@ -479,8 +481,21 @@
                 renderer.render(scene, camera);
 
 
+				var stilleBallen = true;
+
+
                 for (var x=0; x < poolBallen.length; x++) {
                     for (var y = x + 1; y < poolBallen.length; y++) {
+
+
+                    	var dir = poolBallen[i].balDirection;
+
+                    	if (!(dir.x <= 0.005 && dir.z <= 0.005  && dir.x > -0.005  && dir.z > -0.005 )){
+							stilleBallen = false;
+						}
+						if (i == 15 && stilleBallen == true && ballenLiggenStil == false){
+							ballenLiggenStil = true;
+						}
 
                     	if (poolBallen[i].collision == 2){continue;}
 
@@ -574,7 +589,13 @@
 
 
 			function  fallPoolball(ball) {
-				ball.balDirection = new THREE.Vector3(0,0,0);
+
+				if (ball.balDirection.x > 0.5) { ball.balDirection.x = 0.5;}
+				if (ball.balDirection.x < -0.5) { ball.balDirection.x = -0.5;}
+				if (ball.balDirection.y > 0.5) { ball.balDirection.y = 0.5;}
+				if (ball.balDirection.y < -0.5) { ball.balDirection.y = -0.5;}
+
+
 				ball.ball.position.y -= 0.1;
 				ball.collision = 2;
 				ball.fall = 1;
@@ -597,11 +618,11 @@
 
 
 			document.addEventListener( 'keyup', function (event) {
-
-				if(event.keyCode == 32 && controlsEnabled) {
+				if(event.keyCode == 32 && controlsEnabled && ballenLiggenStil) {
+					ballenLiggenStil = false;
 					var direction = camera.position.clone().sub( poolBallen[15].ball.position ).normalize();
-					poolBallen[15].balDirection.x = -direction.clone().multiplyScalar(1).x;
-					poolBallen[15].balDirection.z = -direction.clone().multiplyScalar(1).z;
+					poolBallen[15].balDirection.x = -direction.clone().multiplyScalar(2).x;
+					poolBallen[15].balDirection.z = -direction.clone().multiplyScalar(2).z;
 				}
 
 				else {
