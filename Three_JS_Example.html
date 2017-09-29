@@ -20,7 +20,6 @@
 		<link href="shared/css/main.css" rel="stylesheet" type="text/css">
 		<script src="shared/js/three.js"></script>
 		<script src="shared/js/OrbitControls.js"></script>
-	    <script src="shared/js/PointerLockControls.js"></script>
 
 		
 		<!--<script src="js/SpotLight.js"></script>
@@ -35,6 +34,7 @@
 					this.ball = ball;
 					this.collision = 0;
 					this.fall = 0;
+					this.randCollision = 0;
 				}				
 			}
 
@@ -460,8 +460,9 @@
                     //poolBallen[i].ball.position.add(poolBallen[i].balDirection);
                     poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection.multiplyScalar(drag)).multiplyScalar(clockDelta));
 
-					poolBallen[i].ball.rotateX(-poolBallen[i].balDirection.x);
-					poolBallen[i].ball.rotateZ(-poolBallen[i].balDirection.z);
+					poolBallen[i].ball.rotateX(-poolBallen[i].balDirection.z / 0.5 * clockDelta );
+					poolBallen[i].ball.rotateZ(-poolBallen[i].balDirection.x / 0.5 * clockDelta);
+                    poolBallen[i].ball.rotateY(-poolBallen[i].balDirection.y / 0.5 * clockDelta);
                 }
 
 
@@ -482,9 +483,6 @@
 
 				stokje.rotation.z = -camera.rotation.z;
 
-				//console.log(StokPositie);
-				console.log(stokje.rotation.z);
-				console.log(camera.rotation.z);
 
                 requestAnimationFrame(render);
                 raycaster.setFromCamera(mouse, camera);
@@ -529,7 +527,14 @@
 							poolBallen[i].fall = 1;
 						}
 						else {
-							poolBallen[i].balDirection.z *= -1 * warmteEnergieRendement;
+						    if (poolBallen[i].randCollision == 0) {
+                                poolBallen[i].randCollision = 1;
+                                poolBallen[i].balDirection.z *= -1 * warmteEnergieRendement;
+                            }
+                            else if (poolBallen[i].ball.position.x >= -8 && poolBallen[i].ball.position.x <= 8 )
+							{
+                                poolBallen[i].randCollision = 0;
+							}
 						}
 					}
 					if (poolBallen[i].ball.position.x < -9 || poolBallen[i].ball.position.x > 9)
@@ -542,7 +547,14 @@
 							poolBallen[i].fall = 1;
 						}
 						else{
-							poolBallen[i].balDirection.x *= -1 * warmteEnergieRendement;
+                            if (poolBallen[i].randCollision == 0) {
+                                poolBallen[i].randCollision = 1;
+                                poolBallen[i].balDirection.x *= -1 * warmteEnergieRendement;
+                            }
+                            else if (poolBallen[i].ball.position.y >= -18 && poolBallen[i].ball.position.z <= 18 )
+                            {
+                                poolBallen[i].randCollision = 0;
+                            }
 						}
 					}
 
@@ -599,6 +611,7 @@
 				}
 
 				else {
+				    console.log("pointer lock");
 					instructions.style.display = 'none';
 					blocker.style.display = 'none';
 					// Ask the browser to lock the pointer
