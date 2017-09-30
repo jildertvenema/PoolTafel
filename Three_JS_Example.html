@@ -34,6 +34,10 @@
 			var fallSound = new Audio('sound/fall.mp3');
 			var queSound = new Audio('sound/hit.mp3');
 			var wallSound = new Audio('sound/wall.mp3');
+			var scoredSound = new Audio('sound/claps.mp3');
+
+			var playerOne = true;
+			var scored = false;
 
 			balSound.volume = 1;
 			barSounds.volume = 0.1;
@@ -558,6 +562,9 @@
 					}
 					if (i == 15 && stilleBallen == true && ballenLiggenStil == false){
 						ballenLiggenStil = true;
+						if (scored){
+							scoredSound.play();
+						}
 					}
 
 					var pos = poolBallen[i].ball.position;
@@ -634,6 +641,7 @@
 				ball.ball.position.y -= 0.1;
 				ball.collision = 2;
 				ball.fall = 1;
+				scored = true;
 			}
 
 			function resetWitteBal() {
@@ -691,6 +699,7 @@
 				if(event.keyCode == 32 && controlsEnabled && ballenLiggenStil) {
 					queSound.play();
 					ballenLiggenStil = false;
+					scored = false;
 					var direction = camera.position.clone().sub( poolBallen[15].ball.position ).normalize();
 					poolBallen[15].balDirection.x = -direction.clone().multiplyScalar(2).x;
 					poolBallen[15].balDirection.z = -direction.clone().multiplyScalar(2).z;
