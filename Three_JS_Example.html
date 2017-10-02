@@ -31,7 +31,7 @@
 
 			var barSounds = new Audio('sound/bar.mp3');
 			var balSound = new Audio('sound/bal.mp3');
-			var fallSound = new Audio('sound/fall.mp3');
+
 			var queSound = new Audio('sound/hit.mp3');
 			var wallSound = new Audio('sound/wall.mp3');
 			var scoredSound = new Audio('sound/claps.mp3');
@@ -42,7 +42,7 @@
 			balSound.volume = 1;
 			barSounds.volume = 0.1;
 			barSounds.loop = true;
-			barSounds.play();
+			//barSounds.play();
 		
 			class PoolBal{
 				constructor(baldirection, ball)
@@ -78,7 +78,10 @@
 			var renderer = new THREE.WebGLRenderer();
 			renderer.setSize(window.innerWidth, window.innerHeight);
 			renderer.setClearColor(0x000000);
+
 			renderer.shadowMapEnabled = true;
+			renderer.shadowMap.type = THREE.BasicShadowMap;
+
 			document.body.appendChild(renderer.domElement);
 
 			document.documentElement.style.overflow = 'hidden';  // firefox, chrome
@@ -87,7 +90,7 @@
 			texture = THREE.ImageUtils.loadTexture('shared/img/beton.jpg');
 			wood = THREE.ImageUtils.loadTexture('shared/img/wood.jpg');
 			texture.minFilter = THREE.LinearFilter;
-			betonMaterial = new THREE.MeshBasicMaterial({
+			betonMaterial = new THREE.MeshPhongMaterial({
 				map: texture
 				//color: 0xf0f0f0
 
@@ -146,6 +149,7 @@
 			floor.position.y = -15;
 			floor.rotation.x = - Math.PI / 2;
 			floor.receiveShadow = true;
+			floor.castShadow = true;
 			scene.add(floor);
 
 			var raycaster = new THREE.Raycaster();
@@ -169,11 +173,16 @@
 
 			var sphere = new THREE.SphereGeometry(0.5, 16, 8);
 
-			var light1 = new THREE.DirectionalLight(0xf0f0f0, 1.2, 100, 1);
+			var light1 = new THREE.PointLight(0xffffff, 0.8, 50);
 			light1.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } )));
-			light1.position.set(10, 40, 0);
+			light1.position.set(2, 14, 0);
 			light1.castShadow = true;
+			light1.shadow.camera.near = 0.1;
+			light1.shadow.camera.far = 25;
 			light1.shadowDarkness = 0.5;
+
+			ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+			scene.add(ambientLight);
 
 			scene.add(light1);
 
@@ -196,6 +205,8 @@
 
 			var tafelKleed = new THREE.Mesh(new THREE.BoxGeometry(20, 40, 1), tafelKleedMat);
 			tafelKleed.position.y = -1;
+			tafelKleed.receiveShadow = true;
+			tafelKleed.castShadow = true;
 			tafelKleed.rotation.x = -Math.PI / 2;
 
 			poolTafel.add(tafelKleed);
@@ -287,7 +298,7 @@
 
 
 			var stokGeometry = new THREE.CylinderGeometry( 0.2, 0.08, 15, 32 );
-			var stokMaterial = new THREE.MeshBasicMaterial( {color: 0xC9A281} );
+			var stokMaterial = new THREE.MeshPhongMaterial( {color: 0xC9A281} );
 			var stokje = new THREE.Mesh( stokGeometry, stokMaterial );
 			stokje.rotateX(-5);
 			stokje.position.y = 3;
@@ -486,9 +497,9 @@
 					poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection.multiplyScalar(drag)).multiplyScalar(clockDelta));
 
 
-					poolBallen[i].ball.rotateX((poolBallen[i].balDirection.z / (0.5 * Math.PI)) * clockDelta) ;
-					poolBallen[i].ball.rotateZ(-(poolBallen[i].balDirection.x / (0.5 * Math.PI)) * clockDelta) ;
-					poolBallen[i].ball.rotateY(-(poolBallen[i].balDirection.y / (0.5 * Math.PI)) * clockDelta) ;
+					poolBallen[i].ball.rotateX((poolBallen[i].balDirection.z / (0.5)) * clockDelta) ;
+					poolBallen[i].ball.rotateZ((-poolBallen[i].balDirection.x / (0.5)) * clockDelta) ;
+					//poolBallen[i].ball.rotateY(-(poolBallen[i].balDirection.y / (0.5 * Math.PI)) * clockDelta) ;
 				}
 
 
@@ -575,6 +586,7 @@
                     if (pos.z > 19 && fallen == 0) {
                         pos.z = 19;
                         poolBallen[i].balDirection.z *= -1;
+						var fallSound = new Audio('sound/fall.mp3');
 						wallSound.play();
                     }
 
@@ -582,18 +594,21 @@
                     if (pos.z < -19 && fallen == 0) {
                         pos.z = -19;
                         poolBallen[i].balDirection.z *= -1;
+						var fallSound = new Audio('sound/fall.mp3');
 						wallSound.play();
                     }
 
                     if (pos.x < -9 && fallen == 0) {
                         pos.x = -9;
                         poolBallen[i].balDirection.x *= -1;
+						var fallSound = new Audio('sound/fall.mp3');
 						wallSound.play();
                     }
 
                     if (pos.x > 9 && fallen == 0) {
                         pos.x = 9;
                         poolBallen[i].balDirection.x *= -1;
+						var fallSound = new Audio('sound/fall.mp3');
 						wallSound.play();
                     }
 
