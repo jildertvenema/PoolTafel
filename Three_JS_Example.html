@@ -5,9 +5,16 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	</head>
+	<header>
+		<div id="sound">
+
+			<img src ="shared/img/sound_on.png" width="50px" id="soundImage">
+
+		</div>
+	</header>
 	<body>
 
-		<div id="blocker">
+		<!--<div id="blocker">
 
 			<div id="instructions">
 				<span style="font-size:40px">Press any key to continue</span>
@@ -15,35 +22,61 @@
 				(SPACE = Shoot, SCROLL = Zoom, DRAG = Rotate Camera)
 			</div>
 
-		</div>
+		</div>-->
+
+
 
 		<link href="shared/css/main.css" rel="stylesheet" type="text/css">
 		<script src="shared/js/three.js"></script>
-		<script src="shared/js/PointerLockControls.js"></script>
+		<script src="shared/js/OrbitControls.js"></script>
 
-		
+
 		<!--<script src="js/SpotLight.js"></script>
 		<script src="js/FirstPersonControls.js"></script>-->
-
 		<script>
 
 
+			var barSounds, balSound, fallSound, queSound, wallSound, scoredSound, soundDisabled;
 
-			var barSounds = new Audio('sound/bar.mp3');
-			var balSound = new Audio('sound/bal.mp3');
+				soundDisabled = false;
+				barSounds = new Audio('sound/bar.mp3');
+					barSounds.loop = true;
+					//barSounds.play();
+					barSounds.volume = 0.1;
+				balSound = new Audio('sound/bal.mp3');
+					balSound.volume = 1;
+				fallSound = new Audio('sound/fall.mp3');
+				queSound = new Audio('sound/hit.mp3');
+				wallSound = new Audio('sound/wall.mp3');
+				scoredSound = new Audio('sound/claps.mp3');
 
-			var queSound = new Audio('sound/hit.mp3');
-			var wallSound = new Audio('sound/wall.mp3');
-			var scoredSound = new Audio('sound/claps.mp3');
+			var playerOne, scored;
 
-			var playerOne = true;
-			var scored = false;
+				playerOne = true;
+				scored = false;
 
-			balSound.volume = 1;
-			barSounds.volume = 0.1;
-			barSounds.loop = true;
-			//barSounds.play();
-		
+			var mouse, controller, camera, renderer, scene, camPos, raycaster;
+
+				scene = new THREE.Scene();
+
+				camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+				camPos = camera.position;
+				camPos.set(x = 0,y = 10,z = 25);
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.setClearColor(0x000000);
+				renderer.shadowMapEnabled = true;
+				renderer.shadowMap.type = THREE.BasicShadowMap;
+
+				controls = new THREE.OrbitControls(camera, renderer.domElement);
+				controls.enableRotate = false;
+
+				mouse = new THREE.Vector2();
+
+			    raycaster = new THREE.Raycaster();
+
 			class PoolBal{
 				constructor(baldirection, ball)
 				{
@@ -51,129 +84,55 @@
 					this.ball = ball;
 					this.collision = 0;
 					this.fall = 0;
-				}				
+				}
 			}
-
-			var controlsEnabled = false;
-			var element = document.body;
-			var mouse = new THREE.Vector2();
-
 
 			function init()
 			{
-
-				enablePointerLock();
 				render();
-
-
 			}
 
-			var scene = new THREE.Scene();
 
-			var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-			var camPos = camera.position;
-			camPos.set(x = 0,y = 10,z = 25);
-
-			var renderer = new THREE.WebGLRenderer();
-			renderer.setSize(window.innerWidth, window.innerHeight);
-			renderer.setClearColor(0x000000);
-
-			renderer.shadowMapEnabled = true;
-			renderer.shadowMap.type = THREE.BasicShadowMap;
 
 			document.body.appendChild(renderer.domElement);
-
 			document.documentElement.style.overflow = 'hidden';  // firefox, chrome
 
 			THREE.ImageUtils.crossOrigin = 'anonymous';
 			texture = THREE.ImageUtils.loadTexture('shared/img/beton.jpg');
 			wood = THREE.ImageUtils.loadTexture('shared/img/wood.jpg');
 			texture.minFilter = THREE.LinearFilter;
-			betonMaterial = new THREE.MeshPhongMaterial({
-				map: texture
-				//color: 0xf0f0f0
+			betonMaterial = new THREE.MeshPhongMaterial({map: texture});
 
-			});
+			var floor, poolBallen, alleBallen, ballenLiggenStil, speed, clock, rotationPerFrame, rotationVector,
+					sphere, light1, wall;
 
-			function enablePointerLock()
-			{
-
-				var blocker = document.getElementById( 'blocker' );
-				var instructions = document.getElementById( 'instructions' );
-
-				var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
-				if ( havePointerLock ) {
-
-					var pointerlockchange = function ( event ) {
-						if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
-							controlsEnabled = true;
-							blocker.style.display = 'none';
-						} else {
-							controlsEnabled = true;
-							blocker.style.display = '-webkit-box';
-							blocker.style.display = '-moz-box';
-							blocker.style.display = '';
-							instructions.style.display = '';
-						}
-					};
-					var pointerlockerror = function ( event ) {
-						instructions.style.display = '';
-					};
-					// Hook pointer lock state change events
-					document.addEventListener( 'pointerlockchange', pointerlockchange, false );
-					document.addEventListener( 'mozpointerlockchange', pointerlockchange, false );
-					document.addEventListener( 'webkitpointerlockchange', pointerlockchange, false );
-					document.addEventListener( 'pointerlockerror', pointerlockerror, false );
-					document.addEventListener( 'mozpointerlockerror', pointerlockerror, false );
-					document.addEventListener( 'webkitpointerlockerror', pointerlockerror, false );
-				} else {
-					instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
-				}
-
-			}
-
-
-
-
-
-			// ############################################## init #####################################################
-
-
-
-			//var groundTexture = new THREE.TextureLoader().load('img/front.jpg');
-
-			//var floorMat = new THREE.MeshPhongMaterial( { map: groundTexture  } );
-
-			var floor = new THREE.Mesh( new THREE.PlaneBufferGeometry(200,200,1,1), betonMaterial);
+			floor = new THREE.Mesh( new THREE.PlaneBufferGeometry(200,200,1,1), betonMaterial);
 			floor.position.y = -15;
 			floor.rotation.x = - Math.PI / 2;
 			floor.receiveShadow = true;
 			floor.castShadow = true;
 			scene.add(floor);
 
-			var raycaster = new THREE.Raycaster();
+
+			poolBallen = [];
+			alleBallen = [];
 
 
-			var poolBallen = [];
-			var alleBallen = [];
+			ballenLiggenStil = true;
 
+			speed = new THREE.Vector3();
 
-			var ballenLiggenStil = true;
+			clock = new THREE.Clock();
 
-			var speed = new THREE.Vector3();
-
-			var clock = new THREE.Clock();
-
-			var rotationPerFrame = 0.05;
-			var rotationVector = new THREE.Vector3(rotationPerFrame,rotationPerFrame,rotationPerFrame);
+			rotationPerFrame = 0.05;
+			rotationVector = new THREE.Vector3(rotationPerFrame,rotationPerFrame,rotationPerFrame);
 
 			//scene.add(new THREE.AmbientLight(0xf0f0f0));
 			scene.add( new THREE.AmbientLight(0x111111));
 
-			var sphere = new THREE.SphereGeometry(0.5, 16, 8);
+			sphere = new THREE.SphereGeometry(0.5, 16, 8);
 
-			var light1 = new THREE.PointLight(0xffffff, 0.8, 50);
+			light1 = new THREE.PointLight(0xffffff, 0.8, 50);
 			light1.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } )));
 			light1.position.set(2, 14, 0);
 			light1.castShadow = true;
@@ -191,48 +150,50 @@
 				color: 0xf5f0ff
 
 			});
-			var wall = new THREE.Mesh( new THREE.PlaneBufferGeometry(370,200,1,1), wallMaterial);
+			wall = new THREE.Mesh( new THREE.PlaneBufferGeometry(370,200,1,1), wallMaterial);
 			wall.position.z = -200;
 			scene.add(wall);
 
 
 			// ############################################ pooltafel ##################################################
-			var poolTafel = new THREE.Group();
+			var poolTafel, tafelKleedMat, tafelKleed, xRandGeo, zRandGeo, tafelPootGeo, randMat, rand0, rand1,
+					rand2, rand3, zranden, xranden;
 
+			poolTafel = new THREE.Group();
 
+			tafelKleedMat = new THREE.MeshPhongMaterial({color: 0x228B22});
 
-			var tafelKleedMat = new THREE.MeshPhongMaterial({color: 0x228B22});
-
-			var tafelKleed = new THREE.Mesh(new THREE.BoxGeometry(20, 40, 1), tafelKleedMat);
+			tafelKleed = new THREE.Mesh(new THREE.BoxGeometry(20, 40, 1), tafelKleedMat);
 			tafelKleed.position.y = -1;
 			tafelKleed.receiveShadow = true;
 			tafelKleed.castShadow = true;
 			tafelKleed.rotation.x = -Math.PI / 2;
 
-			poolTafel.add(tafelKleed);
 
-			var xRandGeo = new THREE.BoxGeometry(1, 1, 40);
-			var zRandGeo = new THREE.BoxGeometry(21, 1, 1);
-			var tafelPootGeo = new THREE.BoxGeometry(1, 40, 1);
 
-			var randMat = new THREE.MeshPhongMaterial({
+			xRandGeo = new THREE.BoxGeometry(1, 1, 40);
+			zRandGeo = new THREE.BoxGeometry(21, 1, 1);
+			tafelPootGeo = new THREE.BoxGeometry(1, 40, 1);
+
+			randMat = new THREE.MeshPhongMaterial({
 						//color: 0x8B4513
 						map: wood
 					}
 			);
-			var rand0 = new THREE.Mesh(xRandGeo, randMat);
-			var rand1 = new THREE.Mesh(xRandGeo, randMat);
-			var rand2 = new THREE.Mesh(zRandGeo, randMat);
-			var rand3 = new THREE.Mesh(zRandGeo, randMat);
+			rand0 = new THREE.Mesh(xRandGeo, randMat);
+			rand1 = new THREE.Mesh(xRandGeo, randMat);
+			rand2 = new THREE.Mesh(zRandGeo, randMat);
+			rand3 = new THREE.Mesh(zRandGeo, randMat);
 
-			var zranden = new THREE.Group();
+			zranden = new THREE.Group();
 			zranden.add(rand2);
 			zranden.add(rand3);
 
-			var xranden = new THREE.Group();
+			xranden = new THREE.Group();
 			xranden.add(rand0);
 			xranden.add(rand1);
 
+			poolTafel.add(tafelKleed);
 			poolTafel.add(zranden);
 			poolTafel.add(xranden);
 
@@ -263,10 +224,11 @@
 			tafelKleedcastShadow = true;
 
 
+			var circleGeometry, blackMaterial, circle, circle2, circle3, circle4, circle5, circle6;
 
-			var circleGeometry = new THREE.CircleBufferGeometry( 1.5, 32 );
-			var blackMaterial = new THREE.MeshBasicMaterial( { color: 0x000000 } );
-			var circle = new THREE.Mesh( circleGeometry, blackMaterial );
+			circleGeometry = new THREE.CircleBufferGeometry( 1.5, 32 );
+			blackMaterial = new THREE.MeshBasicMaterial( { color: 0x000000 } );
+			circle = new THREE.Mesh( circleGeometry, blackMaterial );
 			circle.rotation.x = tafelKleed.rotation.x;
 			circle.position.y =  -0.4;
 
@@ -275,24 +237,24 @@
 			circle.position.x = -9;
 			poolTafel.add( circle );
 
-			var circle2 = circle.clone();
+			circle2 = circle.clone();
 			circle2.position.x = 9;
 			poolTafel.add( circle2 );
 
-			var circle3 = circle.clone();
+			circle3 = circle.clone();
 			circle3.position.z = 19;
 			poolTafel.add( circle3 );
 
-			var circle4 = circle3.clone();
+			circle4 = circle3.clone();
 			circle4.position.x = 9;
 			poolTafel.add( circle4 );
 
-			var circle5 = circle3.clone();
+			circle5 = circle3.clone();
 			circle5.position.z = 0;
 			circle5.position.x = -9.5;
 			poolTafel.add( circle5 );
 
-			var circle6 = circle5.clone();
+			circle6 = circle5.clone();
 			circle6.position.x = 9.5;
 			poolTafel.add( circle6 );
 
@@ -414,20 +376,6 @@
 
 			}
 
-
-			function resetWitteBal() {
-				witteBal.position.z = 10;
-				witteBal.position.x = 0;
-				witteBal.position.y = 0;
-				poolBallen[15].ball.visible = true;
-				poolBallen[15].balDirection = new THREE.Vector3(0,0,0);
-				poolBallen[15].ball.position.y = 0;
-				poolBallen[15].collision = 0;
-			}
-
-
-
-
 			resetBalls();
 
 
@@ -529,9 +477,9 @@
 
 
 
-                for (var x=0; x < poolBallen.length; x++) {
-                    for (var y = x + 1; y < poolBallen.length; y++) {
-                    	if (poolBallen[i].collision == 2){continue;}
+				for (var x=0; x < poolBallen.length; x++) {
+					for (var y = x + 1; y < poolBallen.length; y++) {
+						if (poolBallen[i].collision == 2){continue;}
 
 						var distance_x = Math.abs(poolBallen[x].ball.position.x - poolBallen[y].ball.position.x);
 						var distance_y = Math.abs(poolBallen[x].ball.position.z - poolBallen[y].ball.position.z);
@@ -564,7 +512,7 @@
 
 				var stilleBallen = true;
 
-                for (var i = 0; i < poolBallen.length; i ++) {
+				for (var i = 0; i < poolBallen.length; i ++) {
 
 
 					var dir = poolBallen[i].balDirection;
@@ -583,34 +531,34 @@
 					var fallen = poolBallen[i].collision;
 
 					//up
-                    if (pos.z > 19 && fallen == 0) {
-                        pos.z = 19;
-                        poolBallen[i].balDirection.z *= -1;
-						var fallSound = new Audio('sound/fall.mp3');
-						wallSound.play();
-                    }
+					if (pos.z > 19 && fallen == 0) {
+						pos.z = 19;
+						poolBallen[i].balDirection.z *= -1;
 
-                    //down
-                    if (pos.z < -19 && fallen == 0) {
-                        pos.z = -19;
-                        poolBallen[i].balDirection.z *= -1;
-						var fallSound = new Audio('sound/fall.mp3');
 						wallSound.play();
-                    }
+					}
 
-                    if (pos.x < -9 && fallen == 0) {
-                        pos.x = -9;
-                        poolBallen[i].balDirection.x *= -1;
-						var fallSound = new Audio('sound/fall.mp3');
-						wallSound.play();
-                    }
+					//down
+					if (pos.z < -19 && fallen == 0) {
+						pos.z = -19;
+						poolBallen[i].balDirection.z *= -1;
 
-                    if (pos.x > 9 && fallen == 0) {
-                        pos.x = 9;
-                        poolBallen[i].balDirection.x *= -1;
-						var fallSound = new Audio('sound/fall.mp3');
 						wallSound.play();
-                    }
+					}
+
+					if (pos.x < -9 && fallen == 0) {
+						pos.x = -9;
+						poolBallen[i].balDirection.x *= -1;
+
+						wallSound.play();
+					}
+
+					if (pos.x > 9 && fallen == 0) {
+						pos.x = 9;
+						poolBallen[i].balDirection.x *= -1;
+
+						wallSound.play();
+					}
 
 
 
@@ -673,77 +621,39 @@
 			// ########################################## mouse events #################################################
 
 
-			document.addEventListener('keydown', onKeyDown);
-			document.addEventListener( 'keyup', onKeyUp);
+			var soundImage = document.getElementById("soundImage");
+
+			document.addEventListener( 'click', onClick);
+			soundImage.addEventListener('click', onSoundClick);
 
 
+			function onSoundClick(){
+				soundDisabled = !soundDisabled;
+				console.log(soundDisabled);
 
-			function onKeyDown(){
-				if(event.keyCode == 37){ // left
-					if(camPos.z == 25 && camPos.x >= -15){
-						camPos.x--;
-					}
-					if(camPos.x == -15 && camPos.z >= -25){
-						camPos.z--;
-					}
-					if(camPos.z == -25 && x <= 15){
-						camPos.x++;
-					}
-					if(camPos.x == 15 && camPos.z <= 25){
-						camPos.z++;
-					}
+				if(!soundDisabled){
+					soundImage.src = "shared/img/sound_on.png";
+				}
+				else{
+					soundImage.src = "shared/img/sound_off.png";
 				}
 
-				if(event.keyCode == 39){ // right
-					if(camPos.z == 25 && camPos.x >= -15){
-						camPos.x++;
-					}
-					if(camPos.x == -15 && camPos.z >= -25){
-						camPos.z++;
-					}
-					if(camPos.z == -25 && x <= 15){
-						camPos.x--;
-					}
-					if(camPos.x == 15 && camPos.z <= 25){
-						camPos.z--;
-					}
-				}
 			}
 
-			function onKeyUp(){
-				if(event.keyCode == 32 && controlsEnabled && ballenLiggenStil) {
+			function onClick(){
+				if(ballenLiggenStil) {
 					queSound.play();
 					ballenLiggenStil = false;
 					scored = false;
-					var direction = camera.position.clone().sub( poolBallen[15].ball.position ).normalize();
+					var direction = camera.position.clone().sub(poolBallen[15].ball.position).normalize();
 					poolBallen[15].balDirection.x = -direction.clone().multiplyScalar(2).x;
 					poolBallen[15].balDirection.z = -direction.clone().multiplyScalar(2).z;
 				}
-
-				else {
-					console.log("pointer lock");
-					instructions.style.display = 'none';
-					blocker.style.display = 'none';
-					// Ask the browser to lock the pointer
-					element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
-					element.requestPointerLock();
-				}
 			}
 
-			document.addEventListener('mousewheel', function(event) {
-				if (event.wheelDelta < 0 ) {
-					if (camPos.y > 1) {
-						camPos.y--;
-					}
-				}
-				else {
-					if(camPos.y < 15) {
-						camPos.y++;
-					}
-				}
-			});
+
 
 			init();
-</script>
+		</script>
 </body>
 </html>
