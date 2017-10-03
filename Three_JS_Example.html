@@ -52,6 +52,7 @@
 			var meterWidth = 0;
 
 			var keuAnimation = 0;
+			var keuFrames = 0;
 
 			var barSounds, balSound, fallSound, queSound, wallSound, scoredSound, soundDisabled, sounds, volumes;
 
@@ -501,16 +502,19 @@
 
 
 				if (keuAnimation > 0){
-					keuAnimation--;
+					keuFrames++;
+					keuAnimation *= 0.8;
 
-					var keupos = getPointInBetweenByLen(witteBal.position, keu.position, keuAnimation * 0.4 + 6);
+					var keupos = getPointInBetweenByLen(witteBal.position, keu.position, keuAnimation * 0.4 + 6.5);
 
 					console.log(keupos.z);
 					keu.position.y = 3;
 					keu.position.x = keupos.x;
 					keu.position.z = keupos.z;
 
-					if (keuAnimation == 0){
+					if (keuFrames >= 10){
+						keuFrames = 0;
+						keuAnimation = 0;
 						rollWitteBal();
 					}
 				}
@@ -765,7 +769,7 @@
 				if (event.which == 1) {
 					--mouseDown;
 					if(ballenLiggenStil) {
-						keuAnimation = 10;
+						keuAnimation = meterWidth / 20;
 						ballenLiggenStil = false;
 					}
 				}
