@@ -54,6 +54,15 @@ body {
 	font-size: 50px;
 }
 
+#powerMeter{
+    top: 5px;
+    left: 5px;
+    position: absolute;
+    background-color: green;
+    width: 0;
+    height: 25px;
+}
+
 
 
 

@@ -15,6 +15,8 @@
 
 		<div id="player"><p id="playerText">Player 1</p></div>
 
+		<div id="powerMeter"></div>
+
 	</header>
 	<body>
 
@@ -38,6 +40,18 @@
 		<!--<script src="js/SpotLight.js"></script>
 		<script src="js/FirstPersonControls.js"></script>-->
 		<script>
+
+			var mouseDown = 0;
+			document.body.onmousedown = function() {
+				++mouseDown;
+			}
+			document.body.onmouseup = function() {
+				--mouseDown;
+			}
+
+			var powerMeter = document.getElementById("powerMeter");
+			var meterUp = true;
+			var meterWidth = 0;
 
 
 			var barSounds, balSound, fallSound, queSound, wallSound, scoredSound, soundDisabled;
@@ -439,6 +453,18 @@
 			function render() {
 
 
+				if(mouseDown){
+					if (meterWidth >= 100){meterUp = false}
+
+					if (meterWidth <= 0){meterUp = true;}
+
+					if (meterUp) {meterWidth+= 5;}
+					else {meterWidth -= 5;}
+
+					powerMeter.style.width = meterWidth.toString() + "px";
+				}
+
+
 				var clockDelta = clock.getDelta() * 20;
 
 				var drag = 0.996;
@@ -673,8 +699,8 @@
 					ballenLiggenStil = false;
 					scored = false;
 					var direction = camera.position.clone().sub(poolBallen[15].ball.position).normalize();
-					poolBallen[15].balDirection.x = -direction.clone().multiplyScalar(2).x;
-					poolBallen[15].balDirection.z = -direction.clone().multiplyScalar(2).z;
+					poolBallen[15].balDirection.x = -direction.clone().multiplyScalar(meterWidth / 60).x;
+					poolBallen[15].balDirection.z = -direction.clone().multiplyScalar(meterWidth / 60).z;
 				}
 			}
 
