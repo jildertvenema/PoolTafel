@@ -11,6 +11,10 @@
 			<img src ="shared/img/sound_on.png" width="50px" id="soundImage">
 
 		</div>
+
+
+		<div id="player"><p id="playerText">Player 1</p></div>
+
 	</header>
 	<body>
 
@@ -36,7 +40,7 @@
 		<script>
 
 
-			var barSounds, balSound, fallSound, queSound, wallSound, scoredSound, soundDisabled;
+			var barSounds, balSound, fallSound, queSound, wallSound, scoredSound, soundDisabled, sounds, volumes;
 
 			var playerOne, scored;
 
@@ -97,15 +101,21 @@
 			function addSound(){
 				soundDisabled = false;
 				barSounds = new Audio('sound/bar.mp3');
-				barSounds.loop = true;
-				//barSounds.play();
-				barSounds.volume = 0.1;
+					barSounds.loop = true;
+					barSounds.play();
+					barSounds.volume = 0.1;
 				balSound = new Audio('sound/bal.mp3');
-				balSound.volume = 1;
+					balSound.volume = 1;
 				fallSound = new Audio('sound/fall.mp3');
 				queSound = new Audio('sound/hit.mp3');
 				wallSound = new Audio('sound/wall.mp3');
 				scoredSound = new Audio('sound/claps.mp3');
+
+
+				sounds = [barSounds,  balSound, fallSound, queSound, wallSound, scoredSound];
+				volumes = [0.1, 1, 1 ,1, 0.5 ,1];
+				
+				
 			}
 
 			function createRoom() {
@@ -468,12 +478,14 @@
 
 				for (var i = 0; i < ballen.children.length; i++) {
 					poolBallen[i].balDirection.y = 0;
+
+					var newDirection = speed.copy(poolBallen[i].balDirection.multiplyScalar(drag)).multiplyScalar(clockDelta);
+
 					//poolBallen[i].ball.position.add(poolBallen[i].balDirection);
-					poolBallen[i].ball.position.add(speed.copy(poolBallen[i].balDirection.multiplyScalar(drag)).multiplyScalar(clockDelta));
+					poolBallen[i].ball.position.add(newDirection);
 
-
-					poolBallen[i].ball.rotateX((poolBallen[i].balDirection.z / (0.5)) * clockDelta) ;
-					poolBallen[i].ball.rotateZ((-poolBallen[i].balDirection.x / (0.5)) * clockDelta) ;
+					poolBallen[i].ball.rotateX(newDirection.z) ;
+					poolBallen[i].ball.rotateZ(-newDirection.x) ;
 					//poolBallen[i].ball.rotateY(-(poolBallen[i].balDirection.y / (0.5 * Math.PI)) * clockDelta) ;
 				}
 
@@ -542,6 +554,14 @@
 						ballenLiggenStil = true;
 						if (scored){
 							scoredSound.play();
+						}
+						if (playerOne){
+							document.getElementById("playerText").innerHTML  = "Player 1";
+							document.getElementById("player").style.color  = "green";
+						}
+						else{
+							document.getElementById("playerText").innerHTML  = "Player 2";
+							document.getElementById("player").style.color  = "red";
 						}
 					}
 
@@ -652,15 +672,24 @@
 
 				if(!soundDisabled){
 					soundImage.src = "shared/img/sound_on.png";
+					for (var i = 0; i < sounds.length; i++){
+						sounds[i].volume = volumes[i];
+					}
 				}
 				else{
 					soundImage.src = "shared/img/sound_off.png";
+					for (var i = 0; i < sounds.length; i++){
+						sounds[i].volume = 0;
+					}
 				}
 
 			}
 
+
+
 			function onClick(){
 				if(ballenLiggenStil) {
+					playerOne = !playerOne;
 					queSound.play();
 					ballenLiggenStil = false;
 					scored = false;
