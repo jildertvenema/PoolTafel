@@ -45,7 +45,7 @@
 				soundDisabled = false;
 				barSounds = new Audio('sound/bar.mp3');
 					barSounds.loop = true;
-					//barSounds.play();
+					barSounds.play();
 					barSounds.volume = 0.1;
 				balSound = new Audio('sound/bal.mp3');
 					balSound.volume = 1;
@@ -56,6 +56,7 @@
 
 
 			var sounds = [barSounds,  balSound, fallSound, queSound, wallSound, scoredSound];
+			var volumes = [0.1, 1, 1 ,1, 0.5 ,1];
 
 			var playerOne, scored;
 
@@ -651,7 +652,7 @@
 				if(!soundDisabled){
 					soundImage.src = "shared/img/sound_on.png";
 					for (var i = 0; i < sounds.length; i++){
-						sounds[i].volume = 1;
+						sounds[i].volume = volumes[i];
 					}
 				}
 				else{
