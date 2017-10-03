@@ -51,6 +51,7 @@
 			var meterUp = true;
 			var meterWidth = 0;
 
+			var keuAnimation = 0;
 
 			var barSounds, balSound, fallSound, queSound, wallSound, scoredSound, soundDisabled, sounds, volumes;
 
@@ -78,10 +79,11 @@
 				controls = new THREE.OrbitControls(camera, renderer.domElement);
 				controls.enableRotate = true;
 
+				var stick;
+
 				mouse = new THREE.Vector2();
 
 			    raycaster = new THREE.Raycaster();
-
 			class PoolBal{
 
 				constructor(baldirection, ball)
@@ -185,7 +187,7 @@
 				randGeometry_X = new THREE.BoxGeometry(1, 1, 40);
 				randGeometry_Y = new THREE.BoxGeometry(21, 1, 1);
 				tafelPootGeometry = new THREE.BoxGeometry(1, 40, 1);
-				keuGeometry = new THREE.CylinderGeometry(0.2, 0.08, 15, 32);
+				keuGeometry = new THREE.BoxGeometry(0.2, 0.2, 6);
 				circleGeometry = new THREE.CircleBufferGeometry(1.5, 32);
 
 				poolTafel = new THREE.Group();
@@ -276,7 +278,6 @@
 
 				scene.add(keu);
 				scene.add(poolTafel);
-
 			}
 
 
@@ -476,21 +477,17 @@
 
 			}
 
+			function getPointInBetweenByLen(pointA, pointB, length) {
 
+				var dir = pointB.clone().sub(pointA).normalize().multiplyScalar(length);
+				return pointA.clone().add(dir);
+
+			}
 
 			// ############################################# render ###################################################
 			function render() {
 
 				if(mouseDown && ballenLiggenStil){
-					keu.visible = true;
-
-					var keupos = new THREE.Vector3(0,0,0);
-					keupos.addVectors(camera.position, witteBal.position);
-
-					console.log(keupos);
-
-					keu.position = keupos.multiplyScalar(0.5);
-
 
 					if (meterWidth >= 100){meterUp = false}
 
@@ -500,6 +497,22 @@
 					else {meterWidth -= 5;}
 
 					powerMeter.style.width = meterWidth + "px";
+				}
+
+
+				if (keuAnimation > 0){
+					keuAnimation--;
+
+					var keupos = getPointInBetweenByLen(witteBal.position, keu.position, keuAnimation * 0.4 + 6);
+
+					console.log(keupos.z);
+					keu.position.y = 3;
+					keu.position.x = keupos.x;
+					keu.position.z = keupos.z;
+
+					if (keuAnimation == 0){
+						rollWitteBal();
+					}
 				}
 
 
@@ -726,25 +739,51 @@
 			$('#clickField').mousedown(function(event) {
 				if (event.which == 1) {
 					++mouseDown;
+
+
+					if (ballenLiggenStil) {
+						keu.visible = true;
+
+						var keupos = getPointInBetweenByLen(witteBal.position, camera.position, 10);
+
+						console.log(keupos);
+
+						keu.position.y = 3;
+						keu.position.x = keupos.x;
+						keu.position.z = keupos.z;
+
+						console.log(keu.position);
+
+						keu.lookAt(witteBal.position);
+
+
+					}
+
 				}
 			});
 			$('#clickField').mouseup(function(event) {
 				if (event.which == 1) {
 					--mouseDown;
-
-
 					if(ballenLiggenStil) {
-						playerOne = !playerOne;
-						queSound.play();
+						keuAnimation = 10;
 						ballenLiggenStil = false;
-						scored = false;
-						var direction = camera.position.clone().sub(poolBallen[15].ball.position).normalize();
-						poolBallen[15].balDirection.x = -direction.clone().multiplyScalar(meterWidth / 60).x;
-						poolBallen[15].balDirection.z = -direction.clone().multiplyScalar(meterWidth / 60).z;
 					}
-					keu.visible = false;
 				}
 			});
+
+
+			function rollWitteBal(){
+
+				playerOne = !playerOne;
+				queSound.play();
+				ballenLiggenStil = false;
+				scored = false;
+				var direction = camera.position.clone().sub(poolBallen[15].ball.position).normalize();
+				poolBallen[15].balDirection.x = -direction.clone().multiplyScalar(meterWidth / 60).x;
+				poolBallen[15].balDirection.z = -direction.clone().multiplyScalar(meterWidth / 60).z;
+
+				keu.visible = false;
+			}
 
 
 			function onClick(){
