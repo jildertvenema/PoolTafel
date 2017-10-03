@@ -17,6 +17,9 @@
 
 		<div id="powerMeter"></div>
 
+
+		<div id="clickField"></div>
+
 	</header>
 	<body>
 
@@ -35,6 +38,7 @@
 		<link href="shared/css/main.css" rel="stylesheet" type="text/css">
 		<script src="shared/js/three.js"></script>
 		<script src="shared/js/OrbitControls.js"></script>
+		<script src="scripts/jquery-3.2.1.min.js"></script>
 
 
 		<!--<script src="js/SpotLight.js"></script>
@@ -42,12 +46,6 @@
 		<script>
 
 			var mouseDown = 0;
-			document.body.onmousedown = function() {
-				++mouseDown;
-			}
-			document.body.onmouseup = function() {
-				--mouseDown;
-			}
 
 			var powerMeter = document.getElementById("powerMeter");
 			var meterUp = true;
@@ -61,7 +59,8 @@
 				playerOne = true;
 				scored = false;
 
-			var mouse, controls, camera, renderer, scene, camPos, raycaster;
+			var mouse, controls, camera, renderer, scene, camPos, raycaster, keu;
+
 
 				scene = new THREE.Scene();
 
@@ -77,7 +76,7 @@
 				renderer.shadowMap.type = THREE.BasicShadowMap;
 
 				controls = new THREE.OrbitControls(camera, renderer.domElement);
-				controls.enableRotate = false;
+				controls.enableRotate = true;
 
 				mouse = new THREE.Vector2();
 
@@ -175,7 +174,7 @@
 				var poolTafel, tafelKleedMaterial, tafelKleed, randGeometry_X, randGeometry_Y,
 						tafelPootGeometry, randMaterial, rand4, rand1, rand2, rand3, circleGeometry,
 						blackMaterial, circle1, circle2, circle3, circle4, circle5, circle6,
-						keuGeometry, keuMaterial, keu, woodMaterial, tafelPoten, keuPositie;
+						keuGeometry, keuMaterial, woodMaterial, tafelPoten, keuPositie;
 
 				woodMaterial = THREE.ImageUtils.loadTexture('shared/img/wood.jpg');
 				randMaterial = new THREE.MeshPhongMaterial({map: woodMaterial});
@@ -263,6 +262,7 @@
 
 				keu.rotation.z = -camera.rotation.z;
 
+				keu.visible = false;
 
 				poolTafel.add(rand2);
 				poolTafel.add(rand3);
@@ -481,8 +481,17 @@
 			// ############################################# render ###################################################
 			function render() {
 
-
 				if(mouseDown && ballenLiggenStil){
+					keu.visible = true;
+
+					var keupos = new THREE.Vector3(0,0,0);
+					keupos.addVectors(camera.position, witteBal.position);
+
+					console.log(keupos);
+
+					keu.position = keupos.multiplyScalar(0.5);
+
+
 					if (meterWidth >= 100){meterUp = false}
 
 					if (meterWidth <= 0){meterUp = true;}
@@ -490,7 +499,7 @@
 					if (meterUp) {meterWidth+= 5;}
 					else {meterWidth -= 5;}
 
-					powerMeter.style.width = meterWidth.toString() + "px";
+					powerMeter.style.width = meterWidth + "px";
 				}
 
 
@@ -713,16 +722,33 @@
 
 
 
-			function onClick(){
-				if(ballenLiggenStil) {
-					playerOne = !playerOne;
-					queSound.play();
-					ballenLiggenStil = false;
-					scored = false;
-					var direction = camera.position.clone().sub(poolBallen[15].ball.position).normalize();
-					poolBallen[15].balDirection.x = -direction.clone().multiplyScalar(meterWidth / 60).x;
-					poolBallen[15].balDirection.z = -direction.clone().multiplyScalar(meterWidth / 60).z;
+
+			$('#clickField').mousedown(function(event) {
+				if (event.which == 1) {
+					++mouseDown;
 				}
+			});
+			$('#clickField').mouseup(function(event) {
+				if (event.which == 1) {
+					--mouseDown;
+
+
+					if(ballenLiggenStil) {
+						playerOne = !playerOne;
+						queSound.play();
+						ballenLiggenStil = false;
+						scored = false;
+						var direction = camera.position.clone().sub(poolBallen[15].ball.position).normalize();
+						poolBallen[15].balDirection.x = -direction.clone().multiplyScalar(meterWidth / 60).x;
+						poolBallen[15].balDirection.z = -direction.clone().multiplyScalar(meterWidth / 60).z;
+					}
+					keu.visible = false;
+				}
+			});
+
+
+			function onClick(){
+
 			}
 
 
