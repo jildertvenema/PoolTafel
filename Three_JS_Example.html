@@ -38,24 +38,12 @@
 
 			var barSounds, balSound, fallSound, queSound, wallSound, scoredSound, soundDisabled;
 
-				soundDisabled = false;
-				barSounds = new Audio('sound/bar.mp3');
-					barSounds.loop = true;
-					//barSounds.play();
-					barSounds.volume = 0.1;
-				balSound = new Audio('sound/bal.mp3');
-					balSound.volume = 1;
-				fallSound = new Audio('sound/fall.mp3');
-				queSound = new Audio('sound/hit.mp3');
-				wallSound = new Audio('sound/wall.mp3');
-				scoredSound = new Audio('sound/claps.mp3');
-
 			var playerOne, scored;
 
 				playerOne = true;
 				scored = false;
 
-			var mouse, controller, camera, renderer, scene, camPos, raycaster;
+			var mouse, controls, camera, renderer, scene, camPos, raycaster;
 
 				scene = new THREE.Scene();
 
@@ -78,42 +66,204 @@
 			    raycaster = new THREE.Raycaster();
 
 			class PoolBal{
+
 				constructor(baldirection, ball)
 				{
+
 					this.balDirection = baldirection;
 					this.ball = ball;
 					this.collision = 0;
 					this.fall = 0;
+
 				}
 			}
 
 			function init()
 			{
+
 				render();
+				createRoom();
+				createPoolTable();
+				addBalls();
+				addSound();
+
+				document.body.appendChild(renderer.domElement);
+				document.documentElement.style.overflow = 'hidden';  // firefox, chrome
+
+				THREE.ImageUtils.crossOrigin = 'anonymous';
+
+			}
+
+			function addSound(){
+				soundDisabled = false;
+				barSounds = new Audio('sound/bar.mp3');
+				barSounds.loop = true;
+				//barSounds.play();
+				barSounds.volume = 0.1;
+				balSound = new Audio('sound/bal.mp3');
+				balSound.volume = 1;
+				fallSound = new Audio('sound/fall.mp3');
+				queSound = new Audio('sound/hit.mp3');
+				wallSound = new Audio('sound/wall.mp3');
+				scoredSound = new Audio('sound/claps.mp3');
+			}
+
+			function createRoom() {
+
+				var floor, lightStandard, wall, betonMaterial, wallMaterial, lightAmbient1, lightAmbient2, betonTexture;
+
+
+				betonTexture = THREE.ImageUtils.loadTexture('shared/img/beton.jpg');
+					betonTexture.minFilter = THREE.LinearFilter;
+				betonMaterial = new THREE.MeshPhongMaterial({map: betonTexture});
+				wallMaterial = new THREE.MeshBasicMaterial({color: 0xf5f0ff});
+
+				floor = new THREE.Mesh(new THREE.PlaneBufferGeometry(200, 200, 1, 1), betonMaterial);
+				floor.position.y = -15;
+				floor.rotation.x = -Math.PI / 2;
+				floor.receiveShadow = true;
+				floor.castShadow = true;
+
+				wall = new THREE.Mesh(new THREE.PlaneBufferGeometry(370, 200, 1, 1), wallMaterial);
+				wall.position.z = -200;
+				scene.add(wall);
+
+				lightStandard = new THREE.PointLight(0xffffff, 0.8, 50);
+				lightStandard.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({color: 0xf0f0f0})));
+				lightStandard.position.set(2, 14, 0);
+				lightStandard.castShadow = true;
+				lightStandard.shadow.camera.near = 0.1;
+				lightStandard.shadow.camera.far = 25;
+				lightStandard.shadowDarkness = 0.5;
+
+				lightAmbient1 = new THREE.AmbientLight(0xffffff, 0.2);
+				lightAmbient2 = new THREE.AmbientLight(0x111111);
+
+				scene.add(lightAmbient2);
+				scene.add(lightAmbient1);
+				scene.add(floor);
+				scene.add(lightStandard);
+
+			}
+
+			function createPoolTable() {
+
+				var poolTafel, tafelKleedMaterial, tafelKleed, randGeometry_X, randGeometry_Y,
+						tafelPootGeometry, randMaterial, rand4, rand1, rand2, rand3, circleGeometry,
+						blackMaterial, circle1, circle2, circle3, circle4, circle5, circle6,
+						keuGeometry, keuMaterial, keu, woodMaterial, tafelPoten, keuPositie;
+
+				woodMaterial = THREE.ImageUtils.loadTexture('shared/img/wood.jpg');
+				randMaterial = new THREE.MeshPhongMaterial({map: woodMaterial});
+				tafelKleedMaterial = new THREE.MeshPhongMaterial({color: 0x228B22});
+				keuMaterial = new THREE.MeshPhongMaterial({color: 0xC9A281});
+				blackMaterial = new THREE.MeshBasicMaterial({color: 0x000000});
+
+				randGeometry_X = new THREE.BoxGeometry(1, 1, 40);
+				randGeometry_Y = new THREE.BoxGeometry(21, 1, 1);
+				tafelPootGeometry = new THREE.BoxGeometry(1, 40, 1);
+				keuGeometry = new THREE.CylinderGeometry(0.2, 0.08, 15, 32);
+				circleGeometry = new THREE.CircleBufferGeometry(1.5, 32);
+
+				poolTafel = new THREE.Group();
+
+				tafelKleed = new THREE.Mesh(new THREE.BoxGeometry(20, 1, 40), tafelKleedMaterial);
+				tafelKleed.position.y = -1;
+				tafelKleed.receiveShadow = true;
+				tafelKleed.castShadow = true;
+
+				rand1 = new THREE.Mesh(randGeometry_X, randMaterial);
+				rand2 = new THREE.Mesh(randGeometry_X, randMaterial);
+				rand3 = new THREE.Mesh(randGeometry_Y, randMaterial);
+				rand4 = new THREE.Mesh(randGeometry_Y, randMaterial);
+
+				rand1.position.set(-10, 0, 0);
+				rand2.position.set(10, 0, 0);
+				rand3.position.set(0, 0, -20);
+				rand4.position.set(0, 0, 20);
+
+				tafelPoten = new THREE.Group();
+
+				tafelPoot1 = new THREE.Mesh(tafelPootGeometry, randMaterial);
+				tafelPoot2 = new THREE.Mesh(tafelPootGeometry, randMaterial);
+				tafelPoot3 = new THREE.Mesh(tafelPootGeometry, randMaterial);
+				tafelPoot4 = new THREE.Mesh(tafelPootGeometry, randMaterial);
+
+				tafelPoten.add(tafelPoot1, tafelPoot2, tafelPoot3, tafelPoot4);
+
+				tafelPoot1.position.set(-10, -20, 20);
+				tafelPoot2.position.set(10, -20, 20);
+				tafelPoot3.position.set(10, -20, -20);
+				tafelPoot4.position.set(-10, -20, -20);
+
+				circle1 = new THREE.Mesh(circleGeometry, blackMaterial);
+				circle1.rotation.x = -Math.PI / 2;
+				circle1.position.y = -0.4;
+
+				circle1.position.z = -19;
+				circle1.position.x = -9;
+				poolTafel.add(circle1);
+
+				circle2 = circle1.clone();
+				circle2.position.x = 9;
+				poolTafel.add(circle2);
+
+				circle3 = circle1.clone();
+				circle3.position.z = 19;
+				poolTafel.add(circle3);
+
+				circle4 = circle3.clone();
+				circle4.position.x = 9;
+				poolTafel.add(circle4);
+
+				circle5 = circle3.clone();
+				circle5.position.z = 0;
+				circle5.position.x = -9.5;
+				poolTafel.add(circle5);
+
+				circle6 = circle5.clone();
+				circle6.position.x = 9.5;
+				poolTafel.add(circle6);
+
+				keu = new THREE.Mesh(keuGeometry, keuMaterial);
+				keu.rotateX(-5);
+				keu.position.y = 3;
+
+				keuPositie = new THREE.Vector3(0,0,0);
+				keuPositie.addVectors(witteBal.position, camPos);
+
+				keuPositie = keuPositie.multiplyScalar(0.5);
+
+				keu.position.x = keuPositie.x;
+				keu.position.z = keuPositie.z;
+
+				keu.rotation.z = -camera.rotation.z;
+
+
+				poolTafel.add(rand2);
+				poolTafel.add(rand3);
+				poolTafel.add(rand4);
+				poolTafel.add(rand1);
+				poolTafel.add(tafelKleed);
+				poolTafel.add(tafelPoten);
+
+				poolTafel.castShadow = true;
+				poolTafel.receiveShadow = false;
+
+				scene.add(keu);
+				scene.add(poolTafel);
+
 			}
 
 
+			function addBalls(){
 
-			document.body.appendChild(renderer.domElement);
-			document.documentElement.style.overflow = 'hidden';  // firefox, chrome
-
-			THREE.ImageUtils.crossOrigin = 'anonymous';
-			texture = THREE.ImageUtils.loadTexture('shared/img/beton.jpg');
-			wood = THREE.ImageUtils.loadTexture('shared/img/wood.jpg');
-			texture.minFilter = THREE.LinearFilter;
-			betonMaterial = new THREE.MeshPhongMaterial({map: texture});
-
-			var floor, poolBallen, alleBallen, ballenLiggenStil, speed, clock, rotationPerFrame, rotationVector,
-					sphere, light1, wall;
-
-			floor = new THREE.Mesh( new THREE.PlaneBufferGeometry(200,200,1,1), betonMaterial);
-			floor.position.y = -15;
-			floor.rotation.x = - Math.PI / 2;
-			floor.receiveShadow = true;
-			floor.castShadow = true;
-			scene.add(floor);
+			}
 
 
+			var poolBallen, alleBallen, ballenLiggenStil, speed, clock, rotationPerFrame, rotationVector, sphere;
+
+			sphere = new THREE.SphereGeometry(0.5, 16, 8);
 			poolBallen = [];
 			alleBallen = [];
 
@@ -127,147 +277,24 @@
 			rotationPerFrame = 0.05;
 			rotationVector = new THREE.Vector3(rotationPerFrame,rotationPerFrame,rotationPerFrame);
 
-			//scene.add(new THREE.AmbientLight(0xf0f0f0));
-			scene.add( new THREE.AmbientLight(0x111111));
-
-			sphere = new THREE.SphereGeometry(0.5, 16, 8);
-
-			light1 = new THREE.PointLight(0xffffff, 0.8, 50);
-			light1.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial( { color: 0xf0f0f0 } )));
-			light1.position.set(2, 14, 0);
-			light1.castShadow = true;
-			light1.shadow.camera.near = 0.1;
-			light1.shadow.camera.far = 25;
-			light1.shadowDarkness = 0.5;
-
-			ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-			scene.add(ambientLight);
-
-			scene.add(light1);
 
 
-			wallMaterial = new THREE.MeshBasicMaterial({
-				color: 0xf5f0ff
 
-			});
-			wall = new THREE.Mesh( new THREE.PlaneBufferGeometry(370,200,1,1), wallMaterial);
-			wall.position.z = -200;
-			scene.add(wall);
+
+
+
+
+
+
+
+
+
+
+
 
 
 			// ############################################ pooltafel ##################################################
-			var poolTafel, tafelKleedMat, tafelKleed, xRandGeo, zRandGeo, tafelPootGeo, randMat, rand0, rand1,
-					rand2, rand3, zranden, xranden;
 
-			poolTafel = new THREE.Group();
-
-			tafelKleedMat = new THREE.MeshPhongMaterial({color: 0x228B22});
-
-			tafelKleed = new THREE.Mesh(new THREE.BoxGeometry(20, 40, 1), tafelKleedMat);
-			tafelKleed.position.y = -1;
-			tafelKleed.receiveShadow = true;
-			tafelKleed.castShadow = true;
-			tafelKleed.rotation.x = -Math.PI / 2;
-
-
-
-			xRandGeo = new THREE.BoxGeometry(1, 1, 40);
-			zRandGeo = new THREE.BoxGeometry(21, 1, 1);
-			tafelPootGeo = new THREE.BoxGeometry(1, 40, 1);
-
-			randMat = new THREE.MeshPhongMaterial({
-						//color: 0x8B4513
-						map: wood
-					}
-			);
-			rand0 = new THREE.Mesh(xRandGeo, randMat);
-			rand1 = new THREE.Mesh(xRandGeo, randMat);
-			rand2 = new THREE.Mesh(zRandGeo, randMat);
-			rand3 = new THREE.Mesh(zRandGeo, randMat);
-
-			zranden = new THREE.Group();
-			zranden.add(rand2);
-			zranden.add(rand3);
-
-			xranden = new THREE.Group();
-			xranden.add(rand0);
-			xranden.add(rand1);
-
-			poolTafel.add(tafelKleed);
-			poolTafel.add(zranden);
-			poolTafel.add(xranden);
-
-			rand0.position.set(-10, 0, 0);
-			rand1.position.set(10, 0, 0);
-			rand2.position.set(0, 0, -20);
-			rand3.position.set(0, 0, 20);
-
-			var tafelPoten = new THREE.Group();
-
-			tafelPoot1 = new THREE.Mesh(tafelPootGeo, randMat);
-			tafelPoot2 = new THREE.Mesh(tafelPootGeo, randMat);
-			tafelPoot3 = new THREE.Mesh(tafelPootGeo, randMat);
-			tafelPoot4 = new THREE.Mesh(tafelPootGeo, randMat);
-
-			tafelPoten.add(tafelPoot1, tafelPoot2, tafelPoot3, tafelPoot4);
-
-			tafelPoot1.position.set(-10, -20, 20);
-			tafelPoot2.position.set(10, -20, 20);
-			tafelPoot3.position.set(10, -20, -20);
-			tafelPoot4.position.set(-10, -20, -20);
-
-			poolTafel.add(tafelPoten);
-
-			poolTafel.castShadow = true;
-			poolTafel.receiveShadow = false;
-
-			tafelKleedcastShadow = true;
-
-
-			var circleGeometry, blackMaterial, circle, circle2, circle3, circle4, circle5, circle6;
-
-			circleGeometry = new THREE.CircleBufferGeometry( 1.5, 32 );
-			blackMaterial = new THREE.MeshBasicMaterial( { color: 0x000000 } );
-			circle = new THREE.Mesh( circleGeometry, blackMaterial );
-			circle.rotation.x = tafelKleed.rotation.x;
-			circle.position.y =  -0.4;
-
-
-			circle.position.z = -19;
-			circle.position.x = -9;
-			poolTafel.add( circle );
-
-			circle2 = circle.clone();
-			circle2.position.x = 9;
-			poolTafel.add( circle2 );
-
-			circle3 = circle.clone();
-			circle3.position.z = 19;
-			poolTafel.add( circle3 );
-
-			circle4 = circle3.clone();
-			circle4.position.x = 9;
-			poolTafel.add( circle4 );
-
-			circle5 = circle3.clone();
-			circle5.position.z = 0;
-			circle5.position.x = -9.5;
-			poolTafel.add( circle5 );
-
-			circle6 = circle5.clone();
-			circle6.position.x = 9.5;
-			poolTafel.add( circle6 );
-
-
-			var stokGeometry = new THREE.CylinderGeometry( 0.2, 0.08, 15, 32 );
-			var stokMaterial = new THREE.MeshPhongMaterial( {color: 0xC9A281} );
-			var stokje = new THREE.Mesh( stokGeometry, stokMaterial );
-			stokje.rotateX(-5);
-			stokje.position.y = 3;
-
-			scene.add( stokje );
-
-			scene.add(poolTafel);
 
 
 			// ############################################# balls #####################################################
@@ -458,15 +485,7 @@
 
 
 
-				var StokPositie = new THREE.Vector3(0,0,0);
-				StokPositie.addVectors(witteBal.position, camPos);
 
-				StokPositie = StokPositie.multiplyScalar(0.5);
-
-				stokje.position.x = StokPositie.x;
-				stokje.position.z = StokPositie.z;
-
-				stokje.rotation.z = -camera.rotation.z;
 
 
 				requestAnimationFrame(render);
