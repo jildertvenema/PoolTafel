@@ -6,6 +6,11 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	</head>
 	<header>
+
+
+
+		<div id="clickToPlay"><p>Click to play</p></div>
+
 		<div id="sound">
 
 			<img src ="shared/img/sound_on.png" width="50px" id="soundImage">
@@ -19,7 +24,6 @@
 
 		<div id="powerMeter"></div>
 
-		<div id="clickToPlay"><p>Click to play</p></div>
 
 		<div id="clickField"></div>
 
@@ -88,6 +92,11 @@
 
 				controls = new THREE.OrbitControls(camera, renderer.domElement);
 				controls.enableRotate = false;
+
+
+
+            	window.addEventListener( 'resize', onWindowResize, false );
+
 
 				var stick;
 
@@ -497,21 +506,23 @@
 			// ############################################# render ###################################################
 			function render() {
 
-				if(mouseDown && ballenLiggenStil){
+
+
+
+                var clockDelta = clock.getDelta() * 20;
+
+
+                if(mouseDown && ballenLiggenStil){
 
 					if (meterWidth >= 100){meterUp = false}
 
 					if (meterWidth <= 0){meterUp = true;}
 
-					if (meterUp) {meterWidth+= 5;}
-					else {meterWidth -= 5;}
+					if (meterUp) {meterWidth+= clockDelta * 10;}
+					else {meterWidth -= clockDelta * 10;}
 
 					powerMeter.style.width = meterWidth + "px";
 				}
-
-
-
-                var clockDelta = clock.getDelta() * 20;
 
 				if (keuAnimation > 0){
 					keuAnimation += clockDelta;
@@ -871,6 +882,16 @@
 
 			}
 
+            function onWindowResize() {
+
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+
+                renderer.setSize( window.innerWidth, window.innerHeight );
+
+                render();
+
+            }
 
 
 			init();
