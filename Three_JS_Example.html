@@ -19,6 +19,7 @@
 
 		<div id="powerMeter"></div>
 
+		<div id="clickToPlay"><p>Click to play</p></div>
 
 		<div id="clickField"></div>
 
@@ -57,7 +58,8 @@
 			var meterWidth = 0;
 
 			var keuAnimation = 0;
-			var keuFrames = 0;
+			var fullBalls = 0;
+			var halfBalls = 0;
 
 			var barSounds, balSound, fallSound, queSound, wallSound, scoredSound, soundDisabled, sounds, volumes;
 
@@ -604,6 +606,8 @@
                         heeftGeschoten = false;
 
 
+                        document.getElementById("clickToPlay").style.display = "block";
+
                         if (!beurtBehouden || !scored){
                             playerOne = !playerOne;
                         }
@@ -710,6 +714,7 @@
 				else if (nr == 7){
 				    //zwarte bal
                     beurtBehouden = false;
+                    stopGame();
 				}
 				else if (firstBall){
 				    firstBall = false;
@@ -730,19 +735,19 @@
 
 				}
 				else if (playerOne && nr <= 6 && playerOneHasFull){
-				    //even ballen en player one
+				    fullBalls++;
                     scored = true;
 				}
                 else if (!playerOne && nr <= 6 && !playerOneHasFull){
-                    //oneven ballen en player two
+                    fullBalls++;
                     scored = true;
                 }
                 else if (playerOne && nr >= 8 && !playerOneHasFull){
-                    //even ballen en player one
+                    halfBalls++;
                     scored = true;
                 }
                 else if (!playerOne && nr >= 6 && playerOneHasFull){
-                    //oneven ballen en player two
+                    halfBalls++;
                     scored = true;
                 }
 
@@ -759,6 +764,27 @@
 				poolBallen[15].collision = 0;
 			}
 
+			function  stopGame() {
+				if (playerOne){
+					if ((playerOneHasFull && fullBalls == 7) || (!playerOneHasFull && halfBalls == 7)){
+					    document.getElementById("playerText").innerHTML = "Player one has won";
+					}
+					else
+					{
+                        document.getElementById("playerText").innerHTML = "Player two has won";
+					}
+				}
+				else
+				{
+                    if ((!playerOneHasFull && fullBalls == 7) || (playerOneHasFull && halfBalls == 7)){
+                        document.getElementById("playerText").innerHTML = "Player two has won";
+                    }
+                    else
+					{
+                        document.getElementById("playerText").innerHTML = "Player one has won";
+					}
+				}
+            }
 
 
 			// ########################################## mouse events #################################################
@@ -795,8 +821,7 @@
 			$('#clickField').mousedown(function(event) {
 				if (event.which == 1) {
 					++mouseDown;
-
-
+					document.getElementById("clickToPlay").style.display = "none";
 					if (ballenLiggenStil) {
 						keu.visible = true;
 

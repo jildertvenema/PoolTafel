@@ -87,3 +87,17 @@ body {
     font-size: 50px;
     color: green;
 }
+
+
+#clickToPlay{
+    position: absolute;
+    top: 1px;
+    width: 100%;
+    text-align: center;
+}
+
+#clickToPlay p {
+    margin: 0;
+    font-size: 50px;
+    color: green;
+}
