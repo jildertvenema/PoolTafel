@@ -47,6 +47,9 @@
 
 			var mouseDown = 0;
 
+            var beurtBehouden = false;
+            var heeftGeschoten = false;
+
 			var powerMeter = document.getElementById("powerMeter");
 			var meterUp = true;
 			var meterWidth = 0;
@@ -78,7 +81,7 @@
 				renderer.shadowMap.type = THREE.BasicShadowMap;
 
 				controls = new THREE.OrbitControls(camera, renderer.domElement);
-				controls.enableRotate = true;
+				controls.enableRotate = false;
 
 				var stick;
 
@@ -602,9 +605,17 @@
 					if (!(dir.x <= 0.01 && dir.z <= 0.01  && dir.x > -0.01  && dir.z > -0.01 ) && poolBallen[i].ball.position.y == 0){
 						stilleBallen = false;
 					}
-					if (i == 15 && stilleBallen == true && ballenLiggenStil == false){
+					if (i == 15 && stilleBallen == true && ballenLiggenStil == false && heeftGeschoten ){
 						ballenLiggenStil = true;
-						if (scored){
+                        heeftGeschoten = false;
+
+
+                        if (!beurtBehouden){
+                            playerOne = !playerOne;
+                        }
+
+
+                        if (beurtBehouden){
 							scoredSound.play();
 						}
 						if (playerOne){
@@ -699,23 +710,23 @@
 				ball.collision = 2;
 				ball.fall = 1;
 
-
 				if (nr == 15){
 				    //witte Bal geput
+                    beurtBehouden = false;
 				}
 				else if (nr == 7){
 				    //zwarte bal
+                    beurtBehouden = false;
 				}
 				else if (playerOne && nr % 2 == 0){
 				    //even ballen en player one
-
                     scored = true;
 				}
                 else if (!playerOne && nr % 2 != 0){
                     //oneven ballen en player two
-
                     scored = true;
                 }
+
 
 
 			}
@@ -800,15 +811,15 @@
 
 			function rollWitteBal(){
 
-				playerOne = !playerOne;
+                beurtBehouden = false;
 				queSound.play();
 				ballenLiggenStil = false;
 				scored = false;
 				var direction = camera.position.clone().sub(poolBallen[15].ball.position).normalize();
 				poolBallen[15].balDirection.x = -direction.clone().multiplyScalar(meterWidth / 60).x;
 				poolBallen[15].balDirection.z = -direction.clone().multiplyScalar(meterWidth / 60).z;
-
 				keu.visible = false;
+                heeftGeschoten = true;
 			}
 
 
