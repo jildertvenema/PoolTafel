@@ -684,6 +684,9 @@
 
 			function  fallPoolball(ball) {
 
+
+			    var nr = poolBallen.indexOf(ball);
+
 				fallSound.play();
 
 				if (ball.balDirection.x > 0.5) { ball.balDirection.x = 0.5;}
@@ -695,7 +698,26 @@
 				ball.ball.position.y -= 0.1;
 				ball.collision = 2;
 				ball.fall = 1;
-				scored = true;
+
+
+				if (nr == 15){
+				    //witte Bal geput
+				}
+				else if (nr == 7){
+				    //zwarte bal
+				}
+				else if (playerOne && nr % 2 == 0){
+				    //even ballen en player one
+
+                    scored = true;
+				}
+                else if (!playerOne && nr % 2 != 0){
+                    //oneven ballen en player two
+
+                    scored = true;
+                }
+
+
 			}
 
 			function resetWitteBal() {
