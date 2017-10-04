@@ -59,10 +59,12 @@
 
 			var barSounds, balSound, fallSound, queSound, wallSound, scoredSound, soundDisabled, sounds, volumes;
 
-			var playerOne, scored;
+			var playerOne, scored, firstBall, playerOneHasFull;
 
 				playerOne = true;
 				scored = false;
+				firstBall = true;
+				playerOneHasFull = false;
 
 			var mouse, controls, camera, renderer, scene, camPos, raycaster, keu;
 
@@ -504,26 +506,24 @@
 				}
 
 
+
+                var clockDelta = clock.getDelta() * 20;
+
 				if (keuAnimation > 0){
-					keuFrames++;
-					keuAnimation *= 0.8;
+					keuAnimation += clockDelta;
 
-					var keupos = getPointInBetweenByLen(witteBal.position, keu.position, keuAnimation * 0.4 + 6.5);
+					var keupos = getPointInBetweenByLen(witteBal.position, keu.position, 10 - keuAnimation + 6.5);
 
-					console.log(keupos.z);
 					keu.position.y = 3;
 					keu.position.x = keupos.x;
 					keu.position.z = keupos.z;
 
-					if (keuFrames >= 10){
-						keuFrames = 0;
+					if (keuAnimation >= 10){
 						keuAnimation = 0;
 						rollWitteBal();
 					}
 				}
 
-
-				var clockDelta = clock.getDelta() * 20;
 
 				var drag = 0.996;
 
@@ -550,17 +550,9 @@
 
 				camera.lookAt(witteBal.position);
 
-
-
-
-
-
 				requestAnimationFrame(render);
 				raycaster.setFromCamera(mouse, camera);
 				renderer.render(scene, camera);
-
-
-
 
 
 				for (var x=0; x < poolBallen.length; x++) {
@@ -610,7 +602,7 @@
                         heeftGeschoten = false;
 
 
-                        if (!beurtBehouden){
+                        if (!beurtBehouden || !scored){
                             playerOne = !playerOne;
                         }
 
@@ -718,11 +710,29 @@
 				    //zwarte bal
                     beurtBehouden = false;
 				}
-				else if (playerOne && nr % 2 == 0){
+				else if (firstBall){
+				    firstBall = false;
+				    if (nr <= 6){
+                   	 	playerOneHasFull = playerOne;
+					}
+					else{
+				        playerOneHasFull = !playerOne;
+					}
+
+				}
+				else if (playerOne && nr <= 6 && playerOneHasFull){
 				    //even ballen en player one
                     scored = true;
 				}
-                else if (!playerOne && nr % 2 != 0){
+                else if (!playerOne && nr <= 6 && !playerOneHasFull){
+                    //oneven ballen en player two
+                    scored = true;
+                }
+                else if (playerOne && nr >= 8 && !playerOneHasFull){
+                    //even ballen en player one
+                    scored = true;
+                }
+                else if (!playerOne && nr >= 6 && playerOneHasFull){
                     //oneven ballen en player two
                     scored = true;
                 }
@@ -811,7 +821,7 @@
 
 			function rollWitteBal(){
 
-                beurtBehouden = false;
+                beurtBehouden = true;
 				queSound.play();
 				ballenLiggenStil = false;
 				scored = false;
