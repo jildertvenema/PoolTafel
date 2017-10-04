@@ -65,6 +65,8 @@
 			var fullBalls = 0;
 			var halfBalls = 0;
 
+			var CameraFocusObject = new THREE.Vector3(0,0,0);
+
 			var barSounds, balSound, fallSound, queSound, wallSound, scoredSound, soundDisabled, sounds, volumes;
 
 			var playerOne, scored, firstBall, playerOneHasFull;
@@ -344,6 +346,7 @@
 			// ############################################# balls #####################################################
 			var ballen = new THREE.Group();
 			var witteBal = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0xFFFFFF}));
+			CameraFocusObject = witteBal.position;
 
 			for (var i = 1; i < 16; i++) {
 				/*
@@ -563,7 +566,7 @@
 				renderer.setSize(window.innerWidth, window.innerHeight);
 
 
-				camera.lookAt(witteBal.position);
+				camera.lookAt(CameraFocusObject);
 
 				requestAnimationFrame(render);
 				raycaster.setFromCamera(mouse, camera);
@@ -616,6 +619,7 @@
 						ballenLiggenStil = true;
                         heeftGeschoten = false;
 
+						meterWidth = 0;
 
                         document.getElementById("clickToPlay").style.display = "block";
 
@@ -634,6 +638,11 @@
 							document.getElementById("playerText").innerHTML  = "Player 2";
 							document.getElementById("player").style.color  = "red";
 						}
+
+						if (poolBallen[15].ball.position.y < 0) {
+							resetWitteBal();
+						}
+
 					}
 
 					var pos = poolBallen[i].ball.position;
@@ -690,9 +699,6 @@
 						if (pos.y <= -1) {
 							poolBallen[i].fall = 0;
 							poolBallen[i].ball.visible = false;
-							if (i == 15) {
-								resetWitteBal();
-							}
 
 						}
 					}
@@ -721,6 +727,7 @@
 				if (nr == 15){
 				    //witte Bal geput
                     beurtBehouden = false;
+					CameraFocusObject = new THREE.Vector3(0,3,8);
 				}
 				else if (nr == 7){
 				    //zwarte bal
@@ -767,12 +774,14 @@
 			}
 
 			function resetWitteBal() {
+				poolBallen[15].fall = 0;
 				poolBallen[15].ball.position.x = 0;
 				poolBallen[15].ball.position.z = 10;
 				poolBallen[15].ball.visible = true;
 				poolBallen[15].balDirection = new THREE.Vector3(0,0,0);
 				poolBallen[15].ball.position.y = 0;
 				poolBallen[15].collision = 0;
+				CameraFocusObject = witteBal.position;
 			}
 
 			function  stopGame() {
