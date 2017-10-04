@@ -185,9 +185,9 @@
 				keuMaterial = new THREE.MeshPhongMaterial({color: 0xC9A281});
 				blackMaterial = new THREE.MeshBasicMaterial({color: 0x000000});
 
-				randGeometry_X = new THREE.BoxGeometry(1, 1, 40);
-				randGeometry_Y = new THREE.BoxGeometry(21, 1, 1);
-				tafelPootGeometry = new THREE.BoxGeometry(1, 40, 1);
+				randGeometry_X = new THREE.BoxGeometry(3, 5, 40);
+				randGeometry_Y = new THREE.BoxGeometry(25, 5, 1);
+				tafelPootGeometry = new THREE.BoxGeometry(2, 40, 2);
 				keuGeometry = new THREE.BoxGeometry(0.2, 0.2, 6);
 				circleGeometry = new THREE.CircleBufferGeometry(1.5, 32);
 
@@ -203,10 +203,10 @@
 				rand3 = new THREE.Mesh(randGeometry_Y, randMaterial);
 				rand4 = new THREE.Mesh(randGeometry_Y, randMaterial);
 
-				rand1.position.set(-10, 0, 0);
-				rand2.position.set(10, 0, 0);
-				rand3.position.set(0, 0, -20);
-				rand4.position.set(0, 0, 20);
+				rand1.position.set(-11, -2, 0);
+				rand2.position.set(11, -2, 0);
+				rand3.position.set(0, -2, -20);
+				rand4.position.set(0, -2, 20);
 
 				tafelPoten = new THREE.Group();
 
@@ -217,10 +217,10 @@
 
 				tafelPoten.add(tafelPoot1, tafelPoot2, tafelPoot3, tafelPoot4);
 
-				tafelPoot1.position.set(-10, -20, 20);
-				tafelPoot2.position.set(10, -20, 20);
-				tafelPoot3.position.set(10, -20, -20);
-				tafelPoot4.position.set(-10, -20, -20);
+				tafelPoot1.position.set(-11, -20, 20);
+				tafelPoot2.position.set(11, -20, 20);
+				tafelPoot3.position.set(11, -20, -20);
+				tafelPoot4.position.set(-11, -20, -20);
 
 				circle1 = new THREE.Mesh(circleGeometry, blackMaterial);
 				circle1.rotation.x = -Math.PI / 2;
