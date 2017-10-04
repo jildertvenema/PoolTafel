@@ -453,6 +453,15 @@
 			resetBalls();
 
 
+			var lineMaterial = new THREE.LineDashedMaterial({ color: 0x000000 });
+			var lineGeometry = new THREE.Geometry();
+			var line = new THREE.Line(lineGeometry, lineMaterial);
+			lineGeometry.vertices.push(witteBal.position);
+			var direction = witteBal.position.clone().sub( camera.position ).normalize();
+			direction.y = 0;
+			lineGeometry.vertices.push(direction.clone().multiplyScalar(10));
+			scene.add(line);
+
 
 
 			// ************************************* MANAGE BOUNCE ***************************************
@@ -510,6 +519,23 @@
 			function render() {
 
 
+				if (ballenLiggenStil){
+					lineGeometry.vertices[0] = (witteBal.position);
+					var direction = witteBal.position.clone().sub(camera.position).normalize();
+					direction.y = 0;
+					direction.x = direction.clone().multiplyScalar(40).x;
+					direction.z = direction.clone().multiplyScalar(40).z;
+
+					var linePos = witteBal.position.clone().add(direction)
+
+					lineGeometry.vertices[1] = (linePos);
+					line.geometry.verticesNeedUpdate = true;
+				}
+				else{
+					lineGeometry.vertices[0] = new THREE.Vector3(0,0,0);
+					lineGeometry.vertices[1] = new THREE.Vector3(0,0,0);
+					line.geometry.verticesNeedUpdate = true;
+				}
 
 
                 var clockDelta = clock.getDelta() * 20;
