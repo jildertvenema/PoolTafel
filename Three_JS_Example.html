@@ -15,6 +15,8 @@
 
 		<div id="player"><p id="playerText">Player 1</p></div>
 
+		<div id="hasFull"><p id="hasFullText"></p></div>
+
 		<div id="powerMeter"></div>
 
 
@@ -605,11 +607,10 @@
                         if (!beurtBehouden || !scored){
                             playerOne = !playerOne;
                         }
-
-
-                        if (beurtBehouden){
+                        else (beurtBehouden){
 							scoredSound.play();
 						}
+						
 						if (playerOne){
 							document.getElementById("playerText").innerHTML  = "Player 1";
 							document.getElementById("player").style.color  = "green";
@@ -717,6 +718,13 @@
 					}
 					else{
 				        playerOneHasFull = !playerOne;
+					}
+					if (playerOneHasFull){
+				        document.getElementById("hasFullText").innerHTML = "Player 1 has full";
+					}
+					else{
+                        document.getElementById("hasFullText").innerHTML = "Player 2 has full";
+                        document.getElementById("hasFullText").style.color = "red";
 					}
 
 				}

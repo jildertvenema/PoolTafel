@@ -75,4 +75,15 @@ body {
 }
 
 
+#hasFull{
+    position: absolute;
+    top: 1px;
+    left: 300px;
+}
 
+
+#hasFullText{
+    margin: 0;
+    font-size: 50px;
+    color: green;
+}
