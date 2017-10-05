@@ -174,7 +174,7 @@
 				wall = new THREE.Mesh(new THREE.PlaneBufferGeometry(19000, 10000, 50, 50), wallMaterial);
 				wall.position.z = -10000;
 
-				
+
 				lightStandard = new THREE.PointLight(0xffffff, 3, 4000);
 				lightStandard.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({color: 0xf0f0f0})));
 				lightStandard.position.set(100, 500, 0);
@@ -235,7 +235,7 @@
 
 				circle1 = new THREE.Mesh(circleGeometry, blackMaterial);
 				circle1.rotation.x = -Math.PI / 2;
-				circle1.position.y = -20;
+				circle1.position.y = -50;
 
 				circle1.position.z = -950;
 				circle1.position.x = -450;
@@ -421,19 +421,19 @@
 					ballen.children[i].position.z = -250;
 					ballen.children[i].position.x = (i * 60) - 100;
 					if (i >= 5) {
-						ballen.children[i].position.x = (i * 60) - 500;
+						ballen.children[i].position.x = (i * 60) - 360;
 						ballen.children[i].position.z = -190;
 					}
 					if (i >= 9) {
-						ballen.children[i].position.x = (i * 60) - 800;
+						ballen.children[i].position.x = (i * 60) - 590;
 						ballen.children[i].position.z = -130;
 					}
 					if (i >= 12) {
-						ballen.children[i].position.x = (i * 60) - 1000;
+						ballen.children[i].position.x = (i * 60) - 750;
 						ballen.children[i].position.z = -70;
 					}
 					if (i >= 14) {
-						ballen.children[i].position.x = (i * 60) - 1200;
+						ballen.children[i].position.x = (i * 60) - 820;
 						ballen.children[i].position.z = -10;
 					}
 				}
