@@ -491,9 +491,6 @@
 
 			function BounceMyBalls(ball, ball2)
 			{
-
-
-
 				var warmteEnergieRendement = 0.95;
 
 				var mass = 1;
@@ -579,7 +576,7 @@
                 var clockDelta = clock.getDelta() * 20;
 
 
-                if(mouseDown == 1 && ballenLiggenStil && !placeWhite){
+                if(mouseDown == 1 && ballenLiggenStil && !placeWhite && document.getElementById("popup").style.display == "none"){
 
 					if (meterWidth >= 100){meterUp = false}
 
@@ -676,6 +673,7 @@
 							        if (i > 8){
 							            //fout
                                         beurtBehouden = false;
+                                        poolBallen[15].collision = 3;
                                         placeWhite = true;
 									}
 								}
@@ -683,6 +681,7 @@
                                     if (i > 8){
                                         //fout
                                         beurtBehouden = false;
+                                        poolBallen[15].collision = 3;
                                         placeWhite = true;
                                     }
                                 }
@@ -690,6 +689,8 @@
 							firstBallHit = false;
 
 							BounceMyBalls(poolBallen[x], poolBallen[y]);
+
+
 						}
 						else if (distance > 1) {
 							poolBallen[x].collision = 0;
@@ -834,9 +835,10 @@
                 }
             });
 
-
 			function  fallPoolball(ball) {
 
+
+			    if (ball.ball == witteBal && placeWhite){return;}
 
 			    var nr = poolBallen.indexOf(ball);
 
@@ -857,6 +859,7 @@
                     beurtBehouden = false;
 					CameraFocusObject = new THREE.Vector3(0,3,8);
                     placeWhite = true;
+                    resetWitteBal();
 				}
 				else if (nr == 7){
 				    //zwarte bal
@@ -986,7 +989,7 @@
 				}
 				if(event.keyCode == 32){
 					mouseDown = 1;
-					if (ballenLiggenStil && !placeWhite) {
+					if (ballenLiggenStil && !placeWhite && document.getElementById("popup").style.display == "none") {
 						keu.visible = true;
 
 						var keupos = getPointInBetweenByLen(witteBal.position, camera.position, 10);
@@ -1008,13 +1011,14 @@
 
 				if(event.keyCode == 32){
 					mouseDown = 0;
-					if(ballenLiggenStil && !placeWhite) {
+					if(ballenLiggenStil && !placeWhite && document.getElementById("popup").style.display == "none") {
 						keuAnimation = meterWidth / 20;
 						ballenLiggenStil = false;
 					}
 				}
                 if(event.keyCode == 80){
                     placeWhite = false;
+                    poolBallen[15].collision = 0;
                 }
 			}
 
