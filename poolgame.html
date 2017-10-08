@@ -9,7 +9,7 @@
 
 
 
-		<div id="clickToPlay"><p>Click to play</p></div>
+		<div id="clickToPlay"><p>Press any key to play</p></div>
 
 		<div id="sound">
 
@@ -54,13 +54,13 @@
 
 		<link href="shared/css/main.css" rel="stylesheet" type="text/css">
 		<script src="shared/js/three.js"></script>
-		<script src="shared/js/OrbitControls.js"></script>
 		<script src="scripts/jquery-3.2.1.min.js"></script>
 
 
 		<!--<script src="js/SpotLight.js"></script>
 		<script src="js/FirstPersonControls.js"></script>-->
 		<script>
+			var blockerDisplay = document.getElementById("clickToPlay");
 
 			var mouseDown = 0;
 
@@ -87,7 +87,7 @@
 				playerOneHasFull = false;
             placeWhite = false;
 
-			var mouse, controls, camera, renderer, scene, camPos, raycaster, keu, firstBallHit, ballAangewezen;
+			var mouse, camera, renderer, scene, camPos, raycaster, keu, firstBallHit, ballAangewezen;
             ballAangewezen = true;
             	firstBallHit = true;
 				scene = new THREE.Scene();
@@ -102,11 +102,6 @@
 				renderer.setClearColor(0x000000);
 				renderer.shadowMapEnabled = true;
 				renderer.shadowMap.type = THREE.BasicShadowMap;
-
-				controls = new THREE.OrbitControls(camera, renderer.domElement);
-				controls.enableRotate = false;
-
-
 
             	window.addEventListener( 'resize', onWindowResize, false );
 
@@ -375,7 +370,7 @@
 				 }
 				 */
 
-				var ballTexture = new THREE.TextureLoader().load('balls/' + i + "ball.png");
+				var ballTexture = new THREE.TextureLoader().load('shared/img/balls/' + i + "ball.png");
 				var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({map: ballTexture}));
 
 				ballen.add(Poolball);
@@ -587,7 +582,7 @@
                 var clockDelta = clock.getDelta() * 20;
 
 
-                if(mouseDown && ballenLiggenStil && !placeWhite){
+                if(mouseDown == 1 && ballenLiggenStil && !placeWhite){
 
 					if (meterWidth >= 100){meterUp = false}
 
@@ -718,7 +713,7 @@
 
 						meterWidth = 0;
 
-                        document.getElementById("clickToPlay").style.display = "block";
+                        blockerDisplay.style.display = "block";
 
                         if (!beurtBehouden || !scored){
                             playerOne = !playerOne;
@@ -925,14 +920,79 @@
 
 			// ########################################## mouse events #################################################
 
-
+			var camSensetivity = .5;
 			var soundImage = document.getElementById("soundImage");
+			soundImage.addEventListener('click', OnSoundClick);
+			document.addEventListener('keyup', OnKeyUp);
 
-			document.addEventListener( 'click', onClick);
-			soundImage.addEventListener('click', onSoundClick);
+			document.addEventListener('keydown', OnKeyDown)
+
+			function OnKeyDown()
+			{
+				if(event.keyCode == 37){ // left
+					if(camPos.z == 25 && camPos.x >= -15){
+						camPos.x -= camSensetivity;
+					}
+					if(camPos.x == -15 && camPos.z >= -25){
+						camPos.z -= camSensetivity;
+					}
+					if(camPos.z == -25 && x <= 15){
+						camPos.x += camSensetivity;
+					}
+					if(camPos.x == 15 && camPos.z <= 25){
+						camPos.z += camSensetivity;
+					}
+				}
+				if(event.keyCode == 39){ // right
+					if(camPos.z == 25 && camPos.x >= -15){
+						camPos.x += camSensetivity;
+					}
+					if(camPos.x == -15 && camPos.z >= -25){
+						camPos.z += camSensetivity;
+					}
+					if(camPos.z == -25 && x <= 15){
+						camPos.x -= camSensetivity;
+					}
+					if(camPos.x == 15 && camPos.z <= 25){
+						camPos.z -= camSensetivity;
+					}
+				}
+				if(event.keyCode == 32){
+					mouseDown = 1;
+					if (ballenLiggenStil && !placeWhite) {
+						keu.visible = true;
+
+						var keupos = getPointInBetweenByLen(witteBal.position, camera.position, 10);
+
+						console.log(keupos);
+
+						keu.position.y = 3;
+						keu.position.x = keupos.x;
+						keu.position.z = keupos.z;
+
+						console.log(keu.position);
+
+						keu.lookAt(witteBal.position);
 
 
-			function onSoundClick(){
+					}
+				}
+			}
+
+			function OnKeyUp(){
+				blockerDisplay.style.display = "none";
+
+				if(event.keyCode == 32){
+					mouseDown = 0;
+					if(ballenLiggenStil && !placeWhite) {
+						keuAnimation = meterWidth / 20;
+						ballenLiggenStil = false;
+					}
+				}
+			}
+
+
+			function OnSoundClick(){
 				soundDisabled = !soundDisabled;
 				console.log(soundDisabled);
 
@@ -951,45 +1011,6 @@
 
 			}
 
-
-
-
-			$('#clickField').mousedown(function(event) {
-				if (event.which == 1) {
-					++mouseDown;
-					document.getElementById("clickToPlay").style.display = "none";
-					if (ballenLiggenStil && !placeWhite) {
-						keu.visible = true;
-
-						var keupos = getPointInBetweenByLen(witteBal.position, camera.position, 10);
-
-						console.log(keupos);
-
-						keu.position.y = 3;
-						keu.position.x = keupos.x;
-						keu.position.z = keupos.z;
-
-						console.log(keu.position);
-
-						keu.lookAt(witteBal.position);
-
-
-					}
-
-				}
-			});
-			$('#clickField').mouseup(function(event) {
-				if (event.which == 1) {
-					--mouseDown;
-					if(ballenLiggenStil && !placeWhite) {
-						keuAnimation = meterWidth / 20;
-						ballenLiggenStil = false;
-					}
-				}
-
-			});
-
-
 			function rollWitteBal(){
 
                 beurtBehouden = true;
@@ -1001,11 +1022,6 @@
 				poolBallen[15].balDirection.z = -direction.clone().multiplyScalar(meterWidth / 60).z;
 				keu.visible = false;
                 heeftGeschoten = true;
-			}
-
-
-			function onClick(){
-
 			}
 
             function onWindowResize() {
