@@ -12,8 +12,8 @@
 		<div id="clickToPlay">
 			<div id="instructions">
 				<span style="font-size:40px">Press any key to play</span>
-				<br />
-				(SPACE = Shoot, SCROLL = Zoom, DRAG = Rotate Camera)
+				<br>
+				(SPACE = Shoot, ARROW KEYS = Rotate Camera, <br>WASD = Move white ball, P = Place Ball)
 				<br>
 				<br>
 				© J. Venema and L. Schipper
@@ -21,9 +21,7 @@
 		</div>
 
 		<div id="sound">
-
 			<img src ="shared/img/sound_on.png" width="50px" id="soundImage">
-
 		</div>
 
 
@@ -46,77 +44,26 @@
 	</header>
 	<body>
 
-		<!--<div id="blocker">
-
-			<div id="instructions">
-				<span style="font-size:40px">Press any key to continue</span>
-				<br />
-				(SPACE = Shoot, SCROLL = Zoom, DRAG = Rotate Camera)
-			</div>
-
-		</div>-->
-
-
-
 		<link href="shared/css/main.css" rel="stylesheet" type="text/css">
 		<script src="shared/js/three.js"></script>
 		<script src="scripts/jquery-3.2.1.min.js"></script>
 
-
-		<!--<script src="js/SpotLight.js"></script>
-		<script src="js/FirstPersonControls.js"></script>-->
 		<script>
-			var blockerDisplay = document.getElementById("clickToPlay");
+			var beurtBehouden, heeftGeschoten, powerMeter, meterUp, meterWidth, keuAnimation, shootDown, blocker;
 
-			var mouseDown = 0;
+			var cameraFocusObject;
 
-            var beurtBehouden = false;
-            var heeftGeschoten = false;
-
-			var powerMeter = document.getElementById("powerMeter");
-			var meterUp = true;
-			var meterWidth = 0;
-
-			var keuAnimation = 0;
-			var fullBalls = 0;
-			var halfBalls = 0;
-
-			var CameraFocusObject = new THREE.Vector3(0,0,0);
+			var poolBallen, alleBallen, ballenLiggenStil, speed, clock, fullBalls, halfBalls,
+					rotationPerFrame, rotationVector, sphere, witteBal, ballen;
 
 			var barSounds, balSound, fallSound, queSound, wallSound, scoredSound, soundDisabled, sounds, volumes;
 
 			var playerOne, scored, firstBall, playerOneHasFull, placeWhite;
 
-				playerOne = true;
-				scored = false;
-				firstBall = true;
-				playerOneHasFull = false;
-            placeWhite = false;
+			var lineGeometry, line;
 
 			var mouse, camera, renderer, scene, camPos, raycaster, keu, firstBallHit, ballAangewezen;
-            ballAangewezen = true;
-            	firstBallHit = true;
-				scene = new THREE.Scene();
 
-				camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-				camPos = camera.position;
-				camPos.set(x = 0,y = 10,z = 25);
-
-				renderer = new THREE.WebGLRenderer();
-				renderer.setSize(window.innerWidth, window.innerHeight);
-				renderer.setClearColor(0x000000);
-				renderer.shadowMapEnabled = true;
-				renderer.shadowMap.type = THREE.BasicShadowMap;
-
-            	window.addEventListener( 'resize', onWindowResize, false );
-
-
-				var stick;
-
-				mouse = new THREE.Vector2();
-
-			    raycaster = new THREE.Raycaster();
 			class PoolBal{
 
 				constructor(baldirection, ball)
@@ -131,49 +78,118 @@
 				}
 			}
 
+			init();
+			render();
+
 			function init()
 			{
+				ballAangewezen = true;
+				firstBallHit = true;
 
-				render();
-				createRoom();
-				createPoolTable();
-				addBalls();
-				addSound();
+				cameraFocusObject = new THREE.Vector3(0,0,0);
 
-				document.body.appendChild(renderer.domElement);
-				document.documentElement.style.overflow = 'hidden';  // firefox, chrome
+				blocker = document.getElementById("clickToPlay");
 
-				THREE.ImageUtils.crossOrigin = 'anonymous';
+				shootDown = 0;
 
-			}
+				beurtBehouden = false;
+				heeftGeschoten = false;
 
-			function addSound(){
-				soundDisabled = false;
-				barSounds = new Audio('shared/sound/bar.mp3');
-					barSounds.loop = true;
-					barSounds.play();
-					barSounds.volume = 0.1;
-				balSound = new Audio('shared/sound/bal.mp3');
-					balSound.volume = 1;
-				fallSound = new Audio('shared/sound/fall.mp3');
-				queSound = new Audio('shared/sound/hit.mp3');
-				wallSound = new Audio('shared/sound/wall.mp3');
-				scoredSound = new Audio('shared/sound/claps.mp3');
+				powerMeter = document.getElementById("powerMeter");
+				meterUp = true;
+				meterWidth = 0;
+
+				keuAnimation = 0;
+				fullBalls = 0;
+				halfBalls = 0;
+
+				//general settings
+
+				scene = new THREE.Scene();
+
+				camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+				camPos = camera.position;
+				camPos.set(x = 0,y = 10,z = 25);
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.setClearColor(0x000000);
+				renderer.shadowMapEnabled = true;
+				renderer.shadowMap.type = THREE.BasicShadowMap;
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+				mouse = new THREE.Vector2();
+
+				raycaster = new THREE.Raycaster();
 
 
-				sounds = [barSounds,  balSound, fallSound, queSound, wallSound, scoredSound];
-				volumes = [0.1, 1, 1 ,1, 0.5 ,1];
-				
-				
-			}
+				//player settings
 
-			function createRoom() {
+				playerOne = true;
+				scored = false;
+				firstBall = true;
+				playerOneHasFull = false;
+				placeWhite = false;
+
+				//add balls
+
+				sphere = new THREE.SphereGeometry(0.5, 16, 8);
+
+				poolBallen = [];
+				alleBallen = [];
+
+				ballenLiggenStil = true;
+
+				speed = new THREE.Vector3();
+
+				clock = new THREE.Clock();
+
+				rotationPerFrame = 0.05;
+				rotationVector = new THREE.Vector3(rotationPerFrame, rotationPerFrame, rotationPerFrame);
+
+				ballen = new THREE.Group();
+				witteBal = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0xFFFFFF}));
+				cameraFocusObject = witteBal.position;
+
+				for (var i = 1; i < 16; i++) {
+
+					var ballTexture = new THREE.TextureLoader().load('shared/img/balls/' + i + "ball.png");
+					var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({map: ballTexture}));
+
+					ballen.add(Poolball);
+
+				}
+
+
+				for (var i = 0; i < ballen.children.length; i++) {
+
+					ballen.children[i].name = "bal" + i;
+					var bal = new PoolBal(new THREE.Vector3(0, 0, 0), ballen.children[i]);
+					bal.name = "poolbal" + i;
+					poolBallen.push(bal);
+					alleBallen.push(ballen.children[i]);
+
+				}
+
+				witteBal.name = "bal" + 15;
+				alleBallen.push(witteBal);
+
+				var wittePoolBal = new PoolBal(new THREE.Vector3(0, 0, 0), witteBal);
+				wittePoolBal.name = "poolbal" + 15;
+				poolBallen.push(wittePoolBal);
+
+				resetBalls();
+
+				//
+
+				//create room
 
 				var floor, lightStandard, wall, betonMaterial, wallMaterial, lightAmbient1, lightAmbient2, betonTexture;
 
-
 				betonTexture = THREE.ImageUtils.loadTexture('shared/img/beton.jpg');
-					betonTexture.minFilter = THREE.LinearFilter;
+				betonTexture.minFilter = THREE.LinearFilter;
 				betonMaterial = new THREE.MeshPhongMaterial({map: betonTexture});
 				wallMaterial = new THREE.MeshBasicMaterial({color: 0xf5f0ff});
 
@@ -203,9 +219,9 @@
 				scene.add(floor);
 				scene.add(lightStandard);
 
-			}
+				//
 
-			function createPoolTable() {
+				//create pool table
 
 				var poolTafel, tafelKleedMaterial, tafelKleed, randGeometry_X, randGeometry_Y,
 						tafelPootGeometry, randMaterial, rand4, rand1, rand2, rand3, circleGeometry,
@@ -312,112 +328,52 @@
 
 				scene.add(keu);
 				scene.add(poolTafel);
+
+				//
+
+				//add sounds
+				soundDisabled = false;
+				barSounds = new Audio('shared/sound/bar.mp3');
+				barSounds.loop = true;
+				barSounds.play();
+				barSounds.volume = 0.1;
+				balSound = new Audio('shared/sound/bal.mp3');
+				balSound.volume = 1;
+				fallSound = new Audio('shared/sound/fall.mp3');
+				queSound = new Audio('shared/sound/hit.mp3');
+				wallSound = new Audio('shared/sound/wall.mp3');
+				scoredSound = new Audio('shared/sound/claps.mp3');
+				sounds = [barSounds,  balSound, fallSound, queSound, wallSound, scoredSound];
+				volumes = [0.1, 1, 1 ,1, 0.5 ,1];
+
+				//
+
+				//standard settings
+
+				document.body.appendChild(renderer.domElement);
+				document.documentElement.style.overflow = 'hidden';  // firefox, chrome
+				THREE.ImageUtils.crossOrigin = 'anonymous';
+
+				//create raycast line
+
+				var lineMaterial = new THREE.LineDashedMaterial({ color: 0x000000 });
+				lineGeometry = new THREE.Geometry();
+				line = new THREE.Line(lineGeometry, lineMaterial);
+				lineGeometry.vertices.push(witteBal.position);
+				var direction = witteBal.position.clone().sub( camera.position ).normalize();
+				direction.y = 0;
+				lineGeometry.vertices.push(direction.clone().multiplyScalar(10));
+				scene.add(line);
+
 			}
 
-
-			function addBalls(){
-
-			}
-
-
-			var poolBallen, alleBallen, ballenLiggenStil, speed, clock, rotationPerFrame, rotationVector, sphere;
-
-			sphere = new THREE.SphereGeometry(0.5, 16, 8);
-			poolBallen = [];
-			alleBallen = [];
-
-
-			ballenLiggenStil = true;
-
-			speed = new THREE.Vector3();
-
-			clock = new THREE.Clock();
-
-			rotationPerFrame = 0.05;
-			rotationVector = new THREE.Vector3(rotationPerFrame,rotationPerFrame,rotationPerFrame);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			// ############################################ pooltafel ##################################################
-
-
-
-			// ############################################# balls #####################################################
-			var ballen = new THREE.Group();
-			var witteBal = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0xFFFFFF}));
-			CameraFocusObject = witteBal.position;
-
-			for (var i = 1; i < 16; i++) {
-				/*
-				 if (i % 2 == 0) {
-				 var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0xff0040}));
-				 }
-				 else {
-				 if (i == 11) {
-				 var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0x00000}));
-				 }
-				 else {
-				 var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0x0040ff}));
-				 }
-				 }
-				 */
-
-				var ballTexture = new THREE.TextureLoader().load('shared/img/balls/' + i + "ball.png");
-				var Poolball = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({map: ballTexture}));
-
-				ballen.add(Poolball);
-			}
-
-
-			//ballen array
-			for (var i = 0 ; i < ballen.children.length; i ++){
-
-				ballen.children[i].name = "bal" + i;
-				var bal = new PoolBal(new THREE.Vector3(0,0,0), ballen.children[i]);
-				bal.name = "poolbal" + i;
-				poolBallen.push(bal);
-				alleBallen.push(ballen.children[i]);
-			}
-
-			witteBal.name = "bal" + 15;
-			alleBallen.push(witteBal);
-
-
-
-
-			var wittePoolBal = new PoolBal(new THREE.Vector3(0, 0, 0), witteBal);
-			wittePoolBal.name = "poolbal" + 15;
-			poolBallen.push(wittePoolBal);
-
-
-
-			// ballen.position.z = 1;
-			//ballen.position.x = -5;
 			function resetBalls() {
-
 
                 document.getElementById("popup").style.display = "none";
 
 			    fullBalls = 0;
 			    halfBalls = 0;
                 firstBall = true;
-
-
-
 
 				for (var i = 0 ; i < poolBallen.length; i ++){
 					poolBallen[i].ball.visible = true;
@@ -426,7 +382,6 @@
 					poolBallen[i].collision = 0;
 					poolBallen[i].wallHit = false;
 				}
-
 
 				scene.add(ballen);
 				scene.add(witteBal);
@@ -455,39 +410,12 @@
 					}
 				}
 
-
                 ballen.children[4].position.set(0.4, 0, -1);
-
                 ballen.children[14].position.set(2.8, 0, -5);
-
-
                 ballen.children[10].position.set(1, 0, -4);
-
                 ballen.children[7].position.set(0.4, 0, -3);
 
-
 			}
-
-
-
-
-
-			resetBalls();
-
-
-			var lineMaterial = new THREE.LineDashedMaterial({ color: 0x000000 });
-			var lineGeometry = new THREE.Geometry();
-			var line = new THREE.Line(lineGeometry, lineMaterial);
-			lineGeometry.vertices.push(witteBal.position);
-			var direction = witteBal.position.clone().sub( camera.position ).normalize();
-			direction.y = 0;
-			lineGeometry.vertices.push(direction.clone().multiplyScalar(10));
-			scene.add(line);
-
-
-
-
-			// ************************************* MANAGE BOUNCE ***************************************
 
 			function BounceMyBalls(ball, ball2)
 			{
@@ -576,7 +504,7 @@
                 var clockDelta = clock.getDelta() * 20;
 
 
-                if(mouseDown == 1 && ballenLiggenStil && !placeWhite && document.getElementById("popup").style.display == "none"){
+                if(shootDown == 1 && ballenLiggenStil && !placeWhite && document.getElementById("popup").style.display == "none"){
 
 					if (meterWidth >= 100){meterUp = false}
 
@@ -637,7 +565,7 @@
 				renderer.setSize(window.innerWidth, window.innerHeight);
 
 
-				camera.lookAt(CameraFocusObject);
+				camera.lookAt(cameraFocusObject);
 
 				requestAnimationFrame(render);
 				raycaster.setFromCamera(mouse, camera);
@@ -857,7 +785,7 @@
 				if (nr == 15){
 				    //witte Bal geput
                     beurtBehouden = false;
-					CameraFocusObject = new THREE.Vector3(0,3,8);
+					cameraFocusObject = new THREE.Vector3(0,3,8);
                     placeWhite = true;
                     resetWitteBal();
 				}
@@ -922,10 +850,11 @@
                         poolBallen[15].ball.position.z = 0;}
 				poolBallen[15].ball.position.y = 0;
 				poolBallen[15].collision = 0;
-				CameraFocusObject = witteBal.position;
+				cameraFocusObject = witteBal.position;
 			}
 
 			function  stopGame() {
+				document.getElementById("hasFullText").innerHTML = "";
 				if (playerOne){
 					if ((playerOneHasFull && fullBalls == 7) || (!playerOneHasFull && halfBalls == 7)){
 					    document.getElementById("playerText").innerHTML = "Player one has won";
@@ -935,28 +864,23 @@
                         document.getElementById("playerText").innerHTML = "Player two has won";
 					}
 				}
-				else
-				{
-                    if ((!playerOneHasFull && fullBalls == 7) || (playerOneHasFull && halfBalls == 7)){
-                        document.getElementById("playerText").innerHTML = "Player two has won";
-                    }
-                    else
-					{
-                        document.getElementById("playerText").innerHTML = "Player one has won";
+				else {
+					if ((!playerOneHasFull && fullBalls == 7) || (playerOneHasFull && halfBalls == 7)) {
+						document.getElementById("playerText").innerHTML = "Player two has won";
+					}
+					else {
+						document.getElementById("playerText").innerHTML = "Player one has won";
 					}
 				}
             }
 
 
-			// ########################################## mouse events #################################################
-
-			var camSensetivity = .5;
 			var soundImage = document.getElementById("soundImage");
 			soundImage.addEventListener('click', OnSoundClick);
 			document.addEventListener('keyup', OnKeyUp);
+			document.addEventListener('keydown', OnKeyDown);
 
-			document.addEventListener('keydown', OnKeyDown)
-
+			var camSensetivity = .5;
 			function OnKeyDown()
 			{
 				if(event.keyCode == 37){ // left
@@ -988,7 +912,7 @@
 					}
 				}
 				if(event.keyCode == 32){
-					mouseDown = 1;
+					shootDown = 1;
 					if (ballenLiggenStil && !placeWhite && document.getElementById("popup").style.display == "none") {
 						keu.visible = true;
 
@@ -1007,10 +931,10 @@
 			}
 
 			function OnKeyUp(){
-				blockerDisplay.style.display = "none";
+				blocker.style.display = "none";
 
 				if(event.keyCode == 32){
-					mouseDown = 0;
+					shootDown = 0;
 					if(ballenLiggenStil && !placeWhite && document.getElementById("popup").style.display == "none") {
 						keuAnimation = meterWidth / 20;
 						ballenLiggenStil = false;
@@ -1066,8 +990,6 @@
 
             }
 
-
-			init();
 		</script>
 </body>
 </html>
