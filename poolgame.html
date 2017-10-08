@@ -143,16 +143,16 @@
 
 			function addSound(){
 				soundDisabled = false;
-				barSounds = new Audio('sound/bar.mp3');
+				barSounds = new Audio('shared/sound/bar.mp3');
 					barSounds.loop = true;
 					barSounds.play();
 					barSounds.volume = 0.1;
-				balSound = new Audio('sound/bal.mp3');
+				balSound = new Audio('shared/sound/bal.mp3');
 					balSound.volume = 1;
-				fallSound = new Audio('sound/fall.mp3');
-				queSound = new Audio('sound/hit.mp3');
-				wallSound = new Audio('sound/wall.mp3');
-				scoredSound = new Audio('sound/claps.mp3');
+				fallSound = new Audio('shared/sound/fall.mp3');
+				queSound = new Audio('shared/sound/hit.mp3');
+				wallSound = new Audio('shared/sound/wall.mp3');
+				scoredSound = new Audio('shared/sound/claps.mp3');
 
 
 				sounds = [barSounds,  balSound, fallSound, queSound, wallSound, scoredSound];
@@ -622,17 +622,23 @@
 				//poolBallen[15].ball.position.add(poolBallen[15].balDirection);
 
 				for (var i = 0; i < ballen.children.length; i++) {
-					poolBallen[i].balDirection.y = 0;
+                    poolBallen[i].balDirection.y = 0;
 
-					var newDirection = speed.copy(poolBallen[i].balDirection.multiplyScalar(drag)).multiplyScalar(clockDelta);
+                    var newDirection = speed.copy(poolBallen[i].balDirection.multiplyScalar(drag)).multiplyScalar(clockDelta);
 
-					//poolBallen[i].ball.position.add(poolBallen[i].balDirection);
-					poolBallen[i].ball.position.add(newDirection);
+                    //poolBallen[i].ball.position.add(poolBallen[i].balDirection);
+                    poolBallen[i].ball.position.add(newDirection);
 
-					poolBallen[i].ball.rotateX(newDirection.z) ;
-					poolBallen[i].ball.rotateZ(-newDirection.x) ;
-					//poolBallen[i].ball.rotateY(-(poolBallen[i].balDirection.y / (0.5 * Math.PI)) * clockDelta) ;
-				}
+                    var tempMat = new THREE.Matrix4();
+                    tempMat.makeRotationAxis(new THREE.Vector3(0, 0, 1), -(clockDelta * poolBallen[i].balDirection.x));
+                    tempMat.multiply(poolBallen[i].ball.matrix);
+                    poolBallen[i].ball.matrix = tempMat;
+                    tempMat = new THREE.Matrix4();
+                    tempMat.makeRotationAxis(new THREE.Vector3(1, 0, 0), (clockDelta * poolBallen[i].balDirection.z));
+                    tempMat.multiply(poolBallen[i].ball.matrix);
+                    poolBallen[i].ball.matrix = tempMat;
+                    poolBallen[i].ball.rotation.setFromRotationMatrix(poolBallen[i].ball.matrix);
+                }
 
 
 				renderer.setSize(window.innerWidth, window.innerHeight);
