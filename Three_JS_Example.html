@@ -27,6 +27,16 @@
 
 		<div id="clickField"></div>
 
+		<div class="holder">
+			<div id="popup" class="popup">
+				<div class="content">
+					<p>Invalid Break!</p>
+					<input onclick="resetBalls()" type="button" id="reset" class="button" value="Reset balls">
+						<input onclick="playAlong()" type="button" id="play" class="button" value="Play along">
+				</div>
+			</div>
+		</div>
+
 	</header>
 	<body>
 
@@ -69,16 +79,17 @@
 
 			var barSounds, balSound, fallSound, queSound, wallSound, scoredSound, soundDisabled, sounds, volumes;
 
-			var playerOne, scored, firstBall, playerOneHasFull;
+			var playerOne, scored, firstBall, playerOneHasFull, placeWhite;
 
 				playerOne = true;
 				scored = false;
 				firstBall = true;
 				playerOneHasFull = false;
+            placeWhite = false;
 
-			var mouse, controls, camera, renderer, scene, camPos, raycaster, keu;
-
-
+			var mouse, controls, camera, renderer, scene, camPos, raycaster, keu, firstBallHit, ballAangewezen;
+            ballAangewezen = true;
+            	firstBallHit = true;
 				scene = new THREE.Scene();
 
 				camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -114,6 +125,7 @@
 					this.ball = ball;
 					this.collision = 0;
 					this.fall = 0;
+					this.wallHit = false;
 
 				}
 			}
@@ -391,22 +403,20 @@
 			poolBallen.push(wittePoolBal);
 
 
-			function returnBalDir(ball){
-
-				for (var i = 0; i < poolBallen.length; i++){
-
-					if (poolBallen[i].name == ball)
-					{
-						return poolBallen[i];
-					}
-				}
-			}
-
-
 
 			// ballen.position.z = 1;
 			//ballen.position.x = -5;
 			function resetBalls() {
+
+
+                document.getElementById("popup").style.display = "none";
+                document.getElementById("clickField").style.display = "block";
+
+			    fullBalls = 0;
+			    halfBalls = 0;
+                firstBall = true;
+
+
 
 
 				for (var i = 0 ; i < poolBallen.length; i ++){
@@ -414,14 +424,12 @@
 					poolBallen[i].balDirection = new THREE.Vector3(0,0,0);
 					poolBallen[i].ball.position.y = 0;
 					poolBallen[i].collision = 0;
+					poolBallen[i].wallHit = false;
 				}
 
 
 				scene.add(ballen);
 				scene.add(witteBal);
-
-
-
 
 				witteBal.position.z = 10;
 				witteBal.position.x = 0;
@@ -448,7 +456,21 @@
 				}
 
 
+                ballen.children[4].position.set(0.4, 0, -1);
+
+                ballen.children[14].position.set(2.8, 0, -5);
+
+
+                ballen.children[10].position.set(1, 0, -4);
+
+                ballen.children[7].position.set(0.4, 0, -3);
+
+
 			}
+
+
+
+
 
 			resetBalls();
 
@@ -461,6 +483,7 @@
 			direction.y = 0;
 			lineGeometry.vertices.push(direction.clone().multiplyScalar(10));
 			scene.add(line);
+
 
 
 
@@ -515,11 +538,34 @@
 
 			}
 
+            function playAlong(){
+			    document.getElementById("clickField").style.display = "block";
+                document.getElementById("popup").style.display = "none";
+			}
+
+			function enoughWallHits(){
+                var cnt = 0;
+                for (var i =0;i<poolBallen.length;i++){
+                    if (poolBallen[i].wallHit){
+                        cnt++;
+					}
+				}
+
+				console.log(cnt);
+
+				if (cnt < 4){
+                    return false;
+				}
+				else {
+				    return true;
+				}
+			}
+
 			// ############################################# render ###################################################
 			function render() {
 
 
-				if (ballenLiggenStil){
+				if (ballenLiggenStil && !placeWhite){
 					lineGeometry.vertices[0] = (witteBal.position);
 					var direction = witteBal.position.clone().sub(camera.position).normalize();
 					direction.y = 0;
@@ -541,7 +587,7 @@
                 var clockDelta = clock.getDelta() * 20;
 
 
-                if(mouseDown && ballenLiggenStil){
+                if(mouseDown && ballenLiggenStil && !placeWhite){
 
 					if (meterWidth >= 100){meterUp = false}
 
@@ -551,6 +597,11 @@
 					else {meterWidth -= clockDelta * 10;}
 
 					powerMeter.style.width = meterWidth + "px";
+				}
+
+				if (placeWhite){
+                    //dit moet dus nog
+					placeWhite = false; 
 				}
 
 				if (keuAnimation > 0){
@@ -622,6 +673,25 @@
 								poolBallen[x].ball.position.add(direction.clone().multiplyScalar(remainDistance));
 							}
 
+
+							if (!firstBall && firstBallHit && ballAangewezen){
+							    if (playerOneHasFull && playerOne){
+							        if (i > 8){
+							            //fout
+                                        beurtBehouden = false;
+                                        placeWhite = true;
+									}
+								}
+                                if (!playerOneHasFull && !playerOne){
+                                    if (i > 8){
+                                        //fout
+                                        beurtBehouden = false;
+                                        placeWhite = true;
+                                    }
+                                }
+							}
+							firstBallHit = false;
+
 							BounceMyBalls(poolBallen[x], poolBallen[y]);
 						}
 						else if (distance > 1) {
@@ -644,6 +714,7 @@
 					if (i == 15 && stilleBallen == true && ballenLiggenStil == false && heeftGeschoten ){
 						ballenLiggenStil = true;
                         heeftGeschoten = false;
+                        firstBallHit = true;
 
 						meterWidth = 0;
 
@@ -651,6 +722,11 @@
 
                         if (!beurtBehouden || !scored){
                             playerOne = !playerOne;
+                            if (!enoughWallHits() && halfBalls ==0 && fullBalls == 0 && !placeWhite){
+                                //ongeldige break, nu mag andere player kiezen voor reset of verder
+								document.getElementById("popup").style.display = "block";
+                                document.getElementById("clickField").style.display = "none";
+							}
                         }
                         else {
 							scoredSound.play();
@@ -681,6 +757,7 @@
 						poolBallen[i].balDirection.z *= -1;
 
 						wallSound.play();
+						if (i != 15) {poolBallen[i].wallHit = true;}
 					}
 
 					//down
@@ -689,6 +766,7 @@
 						poolBallen[i].balDirection.z *= -1;
 
 						wallSound.play();
+                        if (i != 15) {poolBallen[i].wallHit = true;}
 					}
 
 					if (pos.x < -9 && fallen == 0) {
@@ -696,6 +774,7 @@
 						poolBallen[i].balDirection.x *= -1;
 
 						wallSound.play();
+                        if (i != 15) {poolBallen[i].wallHit = true;}
 					}
 
 					if (pos.x > 9 && fallen == 0) {
@@ -703,6 +782,7 @@
 						poolBallen[i].balDirection.x *= -1;
 
 						wallSound.play();
+                        if (i != 15) {poolBallen[i].wallHit = true;}
 					}
 
 
@@ -754,6 +834,7 @@
 				    //witte Bal geput
                     beurtBehouden = false;
 					CameraFocusObject = new THREE.Vector3(0,3,8);
+                    placeWhite = true;
 				}
 				else if (nr == 7){
 				    //zwarte bal
@@ -764,9 +845,11 @@
 				    firstBall = false;
 				    if (nr <= 6){
                    	 	playerOneHasFull = playerOne;
+                   	 	ballAangewezen = true;
 					}
 					else{
 				        playerOneHasFull = !playerOne;
+                        ballAangewezen = true;
 					}
 					if (playerOneHasFull){
 				        document.getElementById("hasFullText").innerHTML = "Player 1 has full";
@@ -801,10 +884,17 @@
 
 			function resetWitteBal() {
 				poolBallen[15].fall = 0;
-				poolBallen[15].ball.position.x = 0;
-				poolBallen[15].ball.position.z = 10;
+                poolBallen[15].balDirection = new THREE.Vector3(0,0,0);
 				poolBallen[15].ball.visible = true;
-				poolBallen[15].balDirection = new THREE.Vector3(0,0,0);
+				if (!placeWhite){
+
+                    poolBallen[15].ball.position.x = 0;
+                    poolBallen[15].ball.position.z = 10;
+				}
+				else
+				    {
+                        poolBallen[15].ball.position.x = 0;
+                        poolBallen[15].ball.position.z = 0;}
 				poolBallen[15].ball.position.y = 0;
 				poolBallen[15].collision = 0;
 				CameraFocusObject = witteBal.position;
@@ -868,7 +958,7 @@
 				if (event.which == 1) {
 					++mouseDown;
 					document.getElementById("clickToPlay").style.display = "none";
-					if (ballenLiggenStil) {
+					if (ballenLiggenStil && !placeWhite) {
 						keu.visible = true;
 
 						var keupos = getPointInBetweenByLen(witteBal.position, camera.position, 10);
@@ -891,11 +981,12 @@
 			$('#clickField').mouseup(function(event) {
 				if (event.which == 1) {
 					--mouseDown;
-					if(ballenLiggenStil) {
+					if(ballenLiggenStil && !placeWhite) {
 						keuAnimation = meterWidth / 20;
 						ballenLiggenStil = false;
 					}
 				}
+
 			});
 
 
