@@ -9,7 +9,16 @@
 
 
 
-		<div id="clickToPlay"><p>Press any key to play</p></div>
+		<div id="clickToPlay">
+			<div id="instructions">
+				<span style="font-size:40px">Press any key to play</span>
+				<br />
+				(SPACE = Shoot, SCROLL = Zoom, DRAG = Rotate Camera)
+				<br>
+				<br>
+				© J. Venema and L. Schipper
+			</div>
+		</div>
 
 		<div id="sound">
 
@@ -23,9 +32,6 @@
 		<div id="hasFull"><p id="hasFullText"></p></div>
 
 		<div id="powerMeter"></div>
-
-
-		<div id="clickField"></div>
 
 		<div class="holder">
 			<div id="popup" class="popup">
@@ -405,7 +411,6 @@
 
 
                 document.getElementById("popup").style.display = "none";
-                document.getElementById("clickField").style.display = "block";
 
 			    fullBalls = 0;
 			    halfBalls = 0;
@@ -534,7 +539,6 @@
 			}
 
             function playAlong(){
-			    document.getElementById("clickField").style.display = "block";
                 document.getElementById("popup").style.display = "none";
 			}
 
@@ -545,15 +549,7 @@
                         cnt++;
 					}
 				}
-
-				console.log(cnt);
-
-				if (cnt < 4){
-                    return false;
-				}
-				else {
-				    return true;
-				}
+				return (cnt < 4)
 			}
 
 			// ############################################# render ###################################################
@@ -726,7 +722,6 @@
                             if (!enoughWallHits() && halfBalls ==0 && fullBalls == 0 && !placeWhite){
                                 //ongeldige break, nu mag andere player kiezen voor reset of verder
 								document.getElementById("popup").style.display = "block";
-                                document.getElementById("clickField").style.display = "none";
 							}
                         }
                         else {
