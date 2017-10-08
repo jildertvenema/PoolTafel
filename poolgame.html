@@ -549,7 +549,7 @@
                         cnt++;
 					}
 				}
-				return (cnt < 4)
+				return (cnt >= 4)
 			}
 
 			// ############################################# render ###################################################
@@ -557,6 +557,7 @@
 
 
 				if (ballenLiggenStil && !placeWhite){
+
 					lineGeometry.vertices[0] = (witteBal.position);
 					var direction = witteBal.position.clone().sub(camera.position).normalize();
 					direction.y = 0;
@@ -590,10 +591,9 @@
 					powerMeter.style.width = meterWidth + "px";
 				}
 
-				if (placeWhite){
-                    //dit moet dus nog
-					placeWhite = false;
-				}
+				if (placeWhite) {
+
+                }
 
 				if (keuAnimation > 0){
 					keuAnimation += clockDelta;
@@ -715,10 +715,12 @@
 
 						meterWidth = 0;
 
-                        blockerDisplay.style.display = "block";
+                       // blockerDisplay.style.display = "block";
 
                         if (!beurtBehouden || !scored){
+
                             playerOne = !playerOne;
+
                             if (!enoughWallHits() && halfBalls ==0 && fullBalls == 0 && !placeWhite){
                                 //ongeldige break, nu mag andere player kiezen voor reset of verder
 								document.getElementById("popup").style.display = "block";
@@ -807,6 +809,30 @@
 				}
 			}
 
+            $(window).keydown(function (e){
+                switch(e.keyCode) {
+                    case 87:
+                        if (placeWhite){
+                            witteBal.position.z -= 0.2;
+                        }
+                        break;
+                    case 83:
+                        if (placeWhite){
+                            witteBal.position.z += 0.2;
+                        }
+                        break;
+                    case 65:
+                        if (placeWhite){
+                            witteBal.position.x -= 0.2;
+                        }
+                        break;
+                    case 68:
+                        if (placeWhite){
+                            witteBal.position.x += 0.2;
+                        }
+                        break;
+                }
+            });
 
 
 			function  fallPoolball(ball) {
@@ -965,13 +991,10 @@
 
 						var keupos = getPointInBetweenByLen(witteBal.position, camera.position, 10);
 
-						console.log(keupos);
-
 						keu.position.y = 3;
 						keu.position.x = keupos.x;
 						keu.position.z = keupos.z;
 
-						console.log(keu.position);
 
 						keu.lookAt(witteBal.position);
 
@@ -990,6 +1013,9 @@
 						ballenLiggenStil = false;
 					}
 				}
+                if(event.keyCode == 80){
+                    placeWhite = false;
+                }
 			}
 
 
